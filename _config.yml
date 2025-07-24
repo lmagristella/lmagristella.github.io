@@ -61,7 +61,7 @@ author:
   bio    : "PhD student in numerical cosmology, working on general relativistic cosmological simulations."
   links:
     - label: "E-mail"
-      icon: "fas fa-fw fa-mail"
+      icon: "fas fa-fw mail"
       url: "mailto:laurent.magri-stella@lapp.in2p3.fr"
     - label: "ORCID"
       icon: "fab fa-fw fa-orcid"
