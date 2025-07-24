@@ -56,22 +56,25 @@ plugins:
   - jekyll-include-cache
 
 author:
-  name   : "First Lastname"
+  name   : "Laurent Magri-Stella"
   avatar : "/assets/images/bio-photo.jpg"
-  bio    : "My awesome biography constrained to a sentence or two goes here."
+  bio    : "PhD student in numerical cosmology, working on general relativistic cosmological simulations."
   links:
     - label: "Website"
       icon: "fas fa-fw fa-link"
       url: "https://"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/"
+    - label: "ORCID"
+      icon: "fab fa-fw fa-orcid-square"
+      url: "https://orcid.org/0009-0007-2285-9413"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin-square"
+      url: "https://www.linkedin.com/in/laurent-magri-stella-963395244"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/"
+      url: "https://github.com/lmagristella"
+#    - label: "Instagram"
+#      icon: "fab fa-fw fa-instagram"
+#      url: "https://instagram.com/"
 
 footer:
   links:
