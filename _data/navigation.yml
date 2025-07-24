@@ -1,9 +1,11 @@
 main:
-  - title: "Posts"
-    url: /posts/
-  - title: "Categories"
-    url: /categories/
-  - title: "Tags"
-    url: /tags/
-  - title: "About"
-    url: /about/
+  - title: "Research"
+    url: /research/
+  - title: "Publications"
+    url: /publications/
+  - title: "Presentations"
+    url: /talks/
+  - title: "Formation"
+    url: /formation/
+  - title: "Random Science"
+    url: /random-science/
