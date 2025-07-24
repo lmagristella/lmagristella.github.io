@@ -60,9 +60,9 @@ author:
   avatar : "/assets/images/bio-photo.jpg"
   bio    : "PhD student in numerical cosmology, working on general relativistic cosmological simulations."
   links:
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      url: "https://"
+    - label: "E-mail"
+      icon: "fas fa-fw fa-mail"
+      url: "mailto:laurent.magri-stella@lapp.in2p3.fr"
     - label: "ORCID"
       icon: "fab fa-fw fa-orcid"
       url: "https://orcid.org/0009-0007-2285-9413"
