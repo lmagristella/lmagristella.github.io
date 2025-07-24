@@ -1,6 +1,6 @@
 ---
 title: "Publications"
-layout: publications
+layout: single
 permalink: /publications/
 author_profile: true
 ---
