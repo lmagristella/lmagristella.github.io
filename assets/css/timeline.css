@@ -2,7 +2,7 @@
   position: relative;
   margin: 2em 0;
   padding-left: 30px;
-  border-left: 4px solid #6a0dad; /* violet */
+  border-left: 4px solid #6a0dad; /* ligne verticale violette */
 }
 
 .timeline .entry {
@@ -28,13 +28,21 @@
 }
 
 .timeline .content {
-  background-color: #2F4F4F;
+  background-color: #f3e9fc; /* violet très clair */
+  color: #6a0dad; /* texte violet foncé */
   padding: 0.5em 1em;
   border-radius: 8px;
-  box-shadow: 0 0 5px rgba(106, 13, 173, 0.2);
+  box-shadow: 0 0 5px rgba(106, 13, 173, 0.1);
+}
+
+.timeline .content h3,
+.timeline .content p {
+  color: #6a0dad; /* harmonisation des titres et paragraphes */
+  margin: 0.3em 0;
 }
 
 .timeline .date {
   font-weight: bold;
   color: #6a0dad;
+  margin-bottom: 0.3em;
 }
