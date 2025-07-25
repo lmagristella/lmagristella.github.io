@@ -1,0 +1,40 @@
+.timeline {
+  position: relative;
+  margin: 2em 0;
+  padding-left: 30px;
+  border-left: 4px solid #6a0dad; /* violet */
+}
+
+.timeline .entry {
+  position: relative;
+  margin-bottom: 2em;
+  padding-left: 20px;
+}
+
+.timeline .dot {
+  position: absolute;
+  left: -11px;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  background-color: white;
+  color: #6a0dad;
+  border: 2px solid #6a0dad;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline .content {
+  background-color: #f8f2fc;
+  padding: 0.5em 1em;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(106, 13, 173, 0.2);
+}
+
+.timeline .date {
+  font-weight: bold;
+  color: #6a0dad;
+}
