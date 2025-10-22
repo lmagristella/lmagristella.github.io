@@ -28,7 +28,7 @@ Besides my research in cosmology, I’m interested in:
 - Science communication and outreach
 - Teaching, and have done so since the beginning of my bachelor in physics
 - Role-playing games and storytelling 
-- Sports (I practiced judo from age 6 to 20)
+- Sports (I practiced judo from age 6 to 20) and I'm also a big chess nerd.
 
 ## Goals
 
