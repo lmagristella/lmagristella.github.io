@@ -4,13 +4,67 @@ title: "Laurent Magri-Stella"
 header:
   overlay_color: "#6a0dad"
   overlay_filter: "0.2"
-  overlay_image: /assets/images/Astronomy.png  # à remplacer par une image cosmologique stylée
-  actions:
-    - label: "See my research topics"
-      url: "/research/"
-    - label: "My CV"
-      url: "/assets/files/CV_Magri-Stella_Laurent.pdf"
+  overlay_image: /assets/images/Astronomy.png
 excerpt: "Ph.D. student at LAPP - Numerical Cosmology & Relativity"
-intro: 
-  - excerpt: "I am working on generating simulated skies from a perturbed universe, by integrating null geodesics of a perturbed FLRW metric. This website gathers my research projects, publications, and other reflections on science."
 ---
+
+<!-- ===== HERO SECTION WITH PHOTO ===== -->
+<section style="position: relative; text-align: center; color: white; padding: 6rem 0;">
+  <!-- Container for name + photo -->
+  <div style="
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      z-index: 2;
+      position: relative;">
+    
+    <!-- Text content -->
+    <div style="text-align: left; max-width: 600px;">
+      <h1 style="margin-bottom: 0.5rem; font-size: 2.5rem;">Laurent Magri-Stella</h1>
+      <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">
+        Ph.D. student at LAPP — Numerical Cosmology & Relativity
+      </p>
+      <div>
+        <a class="btn btn--primary" href="/research/">See my research topics</a>
+        <a class="btn btn--inverse" href="/assets/files/CV_Magri-Stella_Laurent.pdf">My CV</a>
+      </div>
+    </div>
+
+    <!-- Profile photo -->
+    <div>
+      <img src="/assets/images/profile.png"
+           alt="Laurent Magri-Stella"
+           style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
+                  box-shadow: 0 0 15px rgba(0,0,0,0.5);">
+    </div>
+  </div>
+
+  <!-- Overlayed background (for readability) -->
+  <div style="
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 1;">
+  </div>
+</section>
+
+<!-- ===== INTRO SECTION ===== -->
+<section style="max-width: 800px; margin: 0 auto; padding: 2rem; text-align: center;">
+  <p style="font-size: 1.1rem;">
+    I am working on generating simulated skies from a perturbed universe,
+    by integrating null geodesics of a perturbed FLRW metric.
+    This website gathers my research projects, publications, and other reflections on science.
+  </p>
+</section>
+
+<!-- ===== FOOTER (optional, can be removed if redundant) ===== -->
+<footer style="text-align: center; padding: 2rem; color: #ccc; font-size: 0.9rem;">
+  <p>© 2025 Laurent Magri-Stella — Powered by <a href="https://jekyllrb.com" style="color: #ccc;">Jekyll</a> & Minimal Mistakes</p>
+  <p>
+    <a href="https://github.com/lmagristella" style="color: #ccc; margin: 0 0.5rem;">GitHub</a> |
+    <a href="https://twitter.com/" style="color: #ccc; margin: 0 0.5rem;">Twitter</a> |
+    <a href="https://www.instagram.com/" style="color: #ccc; margin: 0 0.5rem;">Instagram</a>
+  </p>
+</footer>
