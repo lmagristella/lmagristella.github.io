@@ -4,11 +4,7 @@ title: "About me"
 layout: single
 author_profile: true
 ---
-## Who I Am
-
 I'm **Laurent Magri-Stella**, a PhD student in **computational cosmology** and **numerical relativity**, currently based at **LAPP** in **Annecy, France**.
-
-My research focuses on simulating the propagation of light through a perturbed Universe. Specifically, I integrate null geodesics in a perturbed FLRW spacetime to model how gravitational structures distort our observations — a phenomenon known as gravitational lensing. The ultimate goal is to estimate the impact of relativistic effects on future high-precision cosmological surveys.
 
 ## Background
 
