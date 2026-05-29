@@ -55,4 +55,6 @@ Laurent MAGRI-STELLA
 
 ## Access
 
-[Interactive EXCALIBUR lensing demo](https://github.com/lmagristella/excalibur-lensing-applet/releases/download/v1.0/excalibur_lensing_applet)
+<a href="/assets/lensing/" class="btn btn--primary btn--large" target="_blank">
+  ▶ Ouvrir l'applet interactive
+</a>
