@@ -32,4 +32,4 @@ Each configuration is designed to highlight different **weak/strong lensing** ef
 
 ## Access
 
-[Interactive EXCALIBUR lensing demo](https://github.com/lmagristella/excalibur-lensing-applet/releases/tag/v1.0)
+[Interactive EXCALIBUR lensing demo](https://github.com/lmagristella/excalibur-lensing-applet/releases/download/v1.0/excalibur_lensing_applet)
