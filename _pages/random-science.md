@@ -5,7 +5,7 @@ layout: single
 author_profile: true
 ---
 
-Bienvenue dans ma section **Random Science** — une collection de billets courts autour d'idées, de visualisations, d'outils interactifs et de curiosités scientifiques liées à l'astrophysique, à la cosmologie et à d'autres sujets qui m'intéressent.
+Welcome to the random science section, where I will post little results from either my research or some other things I might have spent a sleepless night on. Subjects can range from astrophysics and cosmology to just whatever crosses my mind at a given point in time! 
 
 ## Posts
 
