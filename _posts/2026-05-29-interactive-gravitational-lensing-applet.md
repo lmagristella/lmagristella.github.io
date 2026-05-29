@@ -55,6 +55,6 @@ Laurent MAGRI-STELLA
 
 ## Access
 
-<a href="/assets/lensing/" class="btn btn--primary btn--large" target="_blank">
+<a href="/assets/excalibur_lensing_webapp/" class="btn btn--primary btn--large" target="_blank">
   ▶ Ouvrir l'applet interactive
 </a>
