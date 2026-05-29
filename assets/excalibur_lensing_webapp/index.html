@@ -14,43 +14,39 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;min-height:100vh;display:flex;flex-direction:column}
 
-/* LOADING */
 #loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:100}
 #loading h2{font-family:'Crimson Pro',serif;font-weight:300;font-size:22px;color:var(--accent);letter-spacing:.1em}
 #pbar{width:260px;height:2px;background:var(--border)}
 #pfill{height:100%;background:var(--accent);width:0%;transition:width .15s}
 #pmsg{color:var(--muted);font-size:10px}
 
-header{padding:12px 20px 10px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+header{padding:12px 20px 10px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;flex-shrink:0}
 header h1{font-family:'Crimson Pro',serif;font-weight:300;font-size:21px;letter-spacing:.08em;color:var(--accent)}
 header h1 span{color:var(--text)}
 .hmeta{font-size:10px;color:var(--muted)}
 
-.layout{display:flex;flex:1;overflow:hidden}
+.layout{display:flex;flex:1;overflow:hidden;min-height:0}
 
-/* SIDE PANEL */
-.side{width:230px;min-width:210px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:12px;gap:16px}
+/* SIDE PANEL — wider */
+.side{width:270px;min-width:250px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:14px;gap:16px;flex-shrink:0}
 .sec-lbl{font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;border-bottom:1px solid var(--border);padding-bottom:3px}
 
-/* PROFILE BUTTONS */
 .profile-grid{display:flex;flex-direction:column;gap:4px}
-.prof-btn{width:100%;padding:6px 8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.04em;cursor:pointer;transition:all .15s;text-align:left;line-height:1.4}
+.prof-btn{width:100%;padding:7px 9px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.04em;cursor:pointer;transition:all .15s;text-align:left;line-height:1.4}
 .prof-btn:hover{border-color:var(--accent2);color:var(--accent2)}
 .prof-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07)}
 .prof-btn .sub{font-size:8px;color:var(--muted);display:block;margin-top:2px}
 
-/* SLIDERS */
-.sl-row{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
-.sl-hdr{display:flex;justify-content:space-between}
+.sl-row{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.sl-hdr{display:flex;justify-content:space-between;align-items:center}
 .sl-lbl{color:var(--text);font-size:10px}
 .sl-val{font-size:10px;color:var(--accent);min-width:52px;text-align:right}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--border);outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--accent);cursor:pointer}
-input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--accent);cursor:pointer;border:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer;border:none}
 
-/* OVERLAYS */
-.ov-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;cursor:pointer;user-select:none}
-.ov-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;opacity:.3;transition:opacity .15s}
+.ov-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;user-select:none}
+.ov-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;opacity:.25;transition:opacity .15s}
 .ov-row.on .ov-dot{opacity:1}
 .ov-row span{font-size:10px;color:var(--muted);transition:color .15s}
 .ov-row.on span{color:var(--text)}
@@ -58,20 +54,28 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 .info{font-size:9px;color:var(--muted);line-height:1.8}
 .info b{color:var(--text)}
 
-button.reset{width:100%;padding:7px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer;transition:all .15s;text-transform:uppercase}
+button.reset{width:100%;padding:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer;transition:all .15s;text-transform:uppercase}
 button.reset:hover{border-color:var(--accent);color:var(--accent)}
 
-/* CANVASES */
-.canvases{flex:1;display:flex;overflow:hidden}
-.cwrap{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);position:relative}
-.cwrap:last-child{border-right:none}
-.ctitle{padding:5px 10px;font-size:10px;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--panel);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.ccoord{color:var(--accent);font-size:9px}
-.cinner{position:relative;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#000}
-canvas{display:block;cursor:crosshair;image-rendering:pixelated;max-width:100%;max-height:100%}
-svg.ov{position:absolute;top:0;left:0;pointer-events:none}
+/* CANVAS AREA */
+.canvases{flex:1;display:flex;overflow:hidden;min-width:0}
+.cwrap{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+/* Separator between the two panels */
+.cwrap:first-child{border-right:1px solid var(--border)}
 
-#hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);pointer-events:none;white-space:nowrap;opacity:.6}
+.ctitle{padding:6px 12px;font-size:10px;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--panel);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.ccoord{color:var(--accent);font-size:9px;font-variant-numeric:tabular-nums}
+
+/* Inner canvas container: fills remaining height */
+.cinner{position:relative;flex:1;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+
+/* FOV boundary rectangle drawn in SVG */
+.fov-rect{fill:none;stroke:rgba(255,255,255,.12);stroke-width:1px}
+
+canvas{display:block;cursor:crosshair;image-rendering:pixelated;max-width:100%;max-height:100%;object-fit:contain}
+svg.ov{position:absolute;top:0;left:0;pointer-events:none;width:100%;height:100%}
+
+#hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);pointer-events:none;white-space:nowrap;opacity:.5}
 
 footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);display:flex;justify-content:space-between;font-style:italic;flex-shrink:0}
 </style>
@@ -100,11 +104,11 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
   <div>
     <div class="sec-lbl">Source position</div>
     <div class="sl-row">
-      <div class="sl-hdr"><span class="sl-lbl">x [Mpc]</span><span class="sl-val" id="vx">0.000</span></div>
+      <div class="sl-hdr"><span class="sl-lbl">x [Mpc]</span><span class="sl-val" id="vx">+0.000</span></div>
       <input type="range" id="sx" min="-1.35" max="1.35" step="0.001" value="0">
     </div>
     <div class="sl-row">
-      <div class="sl-hdr"><span class="sl-lbl">y [Mpc]</span><span class="sl-val" id="vy">0.000</span></div>
+      <div class="sl-hdr"><span class="sl-lbl">y [Mpc]</span><span class="sl-val" id="vy">+0.000</span></div>
       <input type="range" id="sy" min="-1.35" max="1.35" step="0.001" value="0">
     </div>
   </div>
@@ -128,8 +132,8 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
       <input type="range" id="spa" min="0" max="180" step="1" value="30">
     </div>
     <div class="sl-row">
-      <div class="sl-hdr"><span class="sl-lbl">I₀</span><span class="sl-val" id="vi0">1.00</span></div>
-      <input type="range" id="si0" min="0.1" max="2.0" step="0.01" value="1.0">
+      <div class="sl-hdr"><span class="sl-lbl">Luminosité I₀</span><span class="sl-val" id="vi0">1.00</span></div>
+      <input type="range" id="si0" min="0.1" max="3.0" step="0.01" value="1.0">
     </div>
   </div>
 
@@ -153,10 +157,9 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
   </div>
 
   <button class="reset" id="breset">↺ Reset</button>
-
   <div class="info" id="info-block">–</div>
 
-</div><!-- /side -->
+</div>
 
 <div class="canvases">
   <div class="cwrap">
@@ -173,74 +176,70 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
       <svg class="ov" id="svg-img"></svg>
     </div>
   </div>
-  <div id="hint">Drag sur le plan source · Sliders pour changer le profil source</div>
+  <div id="hint">Drag sur le plan source · Sliders pour modifier la source</div>
+</div>
 </div>
 
-</div><!-- /layout -->
 <footer>
   <span>EXCALIBUR · Laurent Magri-Stella</span>
   <span>768² photons par profil · rendu Canvas 2D</span>
 </footer>
 
 <script>
-// ── PROFILES METADATA ────────────────────────────────────────────────────────
 const PROFILES = [
-  {label:"Spherical",             prefix:"spherical",  n:768, half:1.47, r_E:0.1770, r_s:0.3713, ba:1.0,  ca:1.0},
-  {label:"Elliptical (b/a=0.60)",prefix:"elliptical", n:768, half:1.47, r_E:0.2026, r_s:0.5219, ba:0.6,  ca:0.6},
-  {label:"Inclined 45° (prolate)",prefix:"inclined",  n:768, half:1.47, r_E:0.2026, r_s:0.5219, ba:0.6,  ca:0.6},
-  {label:"Cigar ∥ LOS (b/a=0.50)",prefix:"cigar",    n:768, half:1.47, r_E:0.2026, r_s:0.5894, ba:0.5,  ca:0.5},
-  {label:"Triaxial (random)",     prefix:"triaxial",  n:768, half:1.47, r_E:0.1373, r_s:0.5675, ba:0.7,  ca:0.4},
+  {label:"Spherical",              prefix:"spherical",  n:768, half:1.47, r_E:0.1770, r_s:0.3713, ba:1.0, ca:1.0},
+  {label:"Elliptical (b/a=0.60)", prefix:"elliptical", n:768, half:1.47, r_E:0.2026, r_s:0.5219, ba:0.6, ca:0.6},
+  {label:"Inclined 45° (prolate)", prefix:"inclined",  n:768, half:1.47, r_E:0.2026, r_s:0.5219, ba:0.6, ca:0.6},
+  {label:"Cigar ∥ LOS (b/a=0.50)",prefix:"cigar",     n:768, half:1.47, r_E:0.2026, r_s:0.5894, ba:0.5, ca:0.5},
+  {label:"Triaxial (random)",      prefix:"triaxial",  n:768, half:1.47, r_E:0.1373, r_s:0.5675, ba:0.7, ca:0.4},
 ];
 
-// ── STATE ────────────────────────────────────────────────────────────────────
-let activeIdx = 0;
-let beta1 = null, beta2 = null, overlays = null;
-let loading = false, dragging = false;
-let rafId = null;
+let activeIdx=0, beta1=null, beta2=null, overlays=null;
+let loading=false, dragging=false, rafId=null;
+const P={cx:0,cy:0,Re:0.1,ns:1.0,ellip:0.3,pa:30,I0:1.0,
+         showEinstein:true,showRs:true,showCrit:false,showCaus:false,showMark:true};
 
-const P = {cx:0,cy:0, Re:0.1, ns:1.0, ellip:0.3, pa:30, I0:1.0,
-           showEinstein:true, showRs:true, showCrit:false, showCaus:false, showMark:true};
+// ── CANVAS ───────────────────────────────────────────────────────────────────
+const csrc=document.getElementById('csrc');
+const cimg=document.getElementById('cimg');
+const ctxS=csrc.getContext('2d');
+const ctxI=cimg.getContext('2d');
+let SZ=512, offX=0, offY=0; // canvas offset within cinner
 
-// ── CANVAS SETUP ─────────────────────────────────────────────────────────────
-const csrc = document.getElementById('csrc');
-const cimg = document.getElementById('cimg');
-const ctxS = csrc.getContext('2d');
-const ctxI = cimg.getContext('2d');
-let SZ = 512;
-
-function setupSize() {
-  const wrap = document.getElementById('wrap-src');
-  const w = wrap.clientWidth, h = wrap.clientHeight;
-  SZ = Math.min(w, h, 700);
-  for (const c of [csrc, cimg]) {
-    c.width = c.height = SZ;
-    c.style.width = c.style.height = SZ + 'px';
+function setupSize(){
+  // Make canvases square, fitting within their container
+  const wS=document.getElementById('wrap-src');
+  const wI=document.getElementById('wrap-img');
+  const W=Math.min(wS.clientWidth, wI.clientWidth);
+  const H=Math.min(wS.clientHeight, wI.clientHeight);
+  SZ=Math.min(W,H,750);
+  for(const c of[csrc,cimg]){c.width=c.height=SZ;c.style.width=c.style.height=SZ+'px';}
+  for(const id of['svg-src','svg-img']){
+    const s=document.getElementById(id);
+    s.setAttribute('viewBox',`0 0 ${wS.clientWidth} ${wS.clientHeight}`);
+    s.style.width=wS.clientWidth+'px';
+    s.style.height=wS.clientHeight+'px';
   }
-  for (const id of ['svg-src','svg-img']) {
-    const s = document.getElementById(id);
-    s.style.width = s.style.height = SZ + 'px';
-    s.setAttribute('viewBox', `0 0 ${SZ} ${SZ}`);
-  }
+  // Compute canvas offset within cinner (for drag coordinate mapping)
+  const r=csrc.getBoundingClientRect();
+  const rw=wS.getBoundingClientRect();
+  offX=r.left-rw.left; offY=r.top-rw.top;
 }
 
 // ── MAGMA LUT ─────────────────────────────────────────────────────────────────
-const MLUT = (() => {
-  const stops = [
-    [0,0,4],[3,0,6],[8,1,14],[15,1,23],[23,2,33],[32,3,43],[41,4,54],
-    [51,6,64],[61,9,74],[71,12,83],[81,16,91],[91,20,99],[101,25,107],
-    [111,31,113],[120,37,119],[130,42,124],[139,48,128],[149,54,132],
-    [158,59,135],[167,65,137],[176,71,139],[185,77,140],[194,82,141],
-    [203,88,141],[211,94,141],[220,100,141],[228,106,140],[235,112,139],
-    [242,118,138],[248,124,137],[253,131,136],[255,137,136],[255,144,136],
-    [255,150,137],[255,157,139],[255,164,141],[255,170,144],[255,177,148],
-    [255,183,153],[255,189,158],[255,196,164],[255,202,170],[255,208,178],
-    [255,214,185],[253,220,194],[252,225,204],[252,231,213],[253,237,224],
-    [254,243,235],[252,253,245]
-  ];
-  const lut = new Uint8Array(256*4);
-  for (let i=0;i<256;i++){
-    const t=i/255*(stops.length-1), lo=Math.floor(t), hi=Math.min(lo+1,stops.length-1), f=t-lo;
-    lut[i*4]  =stops[lo][0]+f*(stops[hi][0]-stops[lo][0]);
+const MLUT=(()=>{
+  const stops=[[0,0,4],[3,0,6],[8,1,14],[15,1,23],[23,2,33],[32,3,43],[41,4,54],
+    [51,6,64],[61,9,74],[71,12,83],[81,16,91],[91,20,99],[101,25,107],[111,31,113],
+    [120,37,119],[130,42,124],[139,48,128],[149,54,132],[158,59,135],[167,65,137],
+    [176,71,139],[185,77,140],[194,82,141],[203,88,141],[211,94,141],[220,100,141],
+    [228,106,140],[235,112,139],[242,118,138],[248,124,137],[253,131,136],[255,137,136],
+    [255,144,136],[255,150,137],[255,157,139],[255,164,141],[255,170,144],[255,177,148],
+    [255,183,153],[255,189,158],[255,196,164],[255,202,170],[255,208,178],[255,214,185],
+    [253,220,194],[252,225,204],[252,231,213],[253,237,224],[254,243,235],[252,253,245]];
+  const lut=new Uint8Array(256*4);
+  for(let i=0;i<256;i++){
+    const t=i/255*(stops.length-1),lo=Math.floor(t),hi=Math.min(lo+1,stops.length-1),f=t-lo;
+    lut[i*4]=stops[lo][0]+f*(stops[hi][0]-stops[lo][0]);
     lut[i*4+1]=stops[lo][1]+f*(stops[hi][1]-stops[lo][1]);
     lut[i*4+2]=stops[lo][2]+f*(stops[hi][2]-stops[lo][2]);
     lut[i*4+3]=255;
@@ -248,65 +247,74 @@ const MLUT = (() => {
   return lut;
 })();
 
-// ── SERSIC ───────────────────────────────────────────────────────────────────
+// ── SERSIC ────────────────────────────────────────────────────────────────────
 function bn(n){return 2*n-1/3+4/(405*n)+46/(25515*n*n)}
 
-// Render Sersic onto beta arrays → vals[N*N]
-function sersicOnBeta(cx,cy,Re,ns,ellip,pa_deg,I0) {
+// beta arrays stored in Fortran order: flat[i+j*N] = beta[i,j] = beta at theta=(xf[i],xf[j])
+// Canvas pixel (px=column=x_index=i, py=row=y_index=j)
+// => access beta1[px + py*N]
+function sersicOnBeta(cx,cy,Re,ns,ellip,pa_deg,I0){
   const N=PROFILES[activeIdx].n;
-  const pa=pa_deg*Math.PI/180, cp=Math.cos(pa), sp=Math.sin(pa);
-  const q=1-ellip, bnv=bn(ns), inv_n=1/ns, inv_Re=1/Re;
+  const pa=pa_deg*Math.PI/180,cp=Math.cos(pa),sp=Math.sin(pa);
+  const q=1-ellip,bnv=bn(ns),inv_n=1/ns,inv_Re=1/Re;
   const vals=new Float32Array(N*N);
   let vmax=0;
+  // j=py (y/row), i=px (x/col)
   for(let j=0;j<N;j++){
     for(let i=0;i<N;i++){
-      const bx=beta1[i+j*N], by=beta2[i+j*N];
+      const bx=beta1[i+j*N];   // F-order: flat[i+j*N] = b1[i,j] = beta_x at (xf[i],xf[j]) ✓
+      const by=beta2[i+j*N];
       const dx=(bx-cx)*cp+(by-cy)*sp;
       const dy=-(bx-cx)*sp+(by-cy)*cp;
       const r=Math.sqrt(dx*dx+(dy/q)*(dy/q));
       const v=I0*Math.exp(-bnv*(Math.pow(r*inv_Re,inv_n)-1));
-      vals[j*N+i]=v;
+      vals[i+j*N]=v;           // store at same (i,j) position
       if(v>vmax)vmax=v;
     }
   }
   return{vals,vmax};
 }
 
-// Render Sersic on uniform grid → source plane
-function sersicDirect(cx,cy,Re,ns,ellip,pa_deg,I0) {
-  const N=PROFILES[activeIdx].n, half=PROFILES[activeIdx].half;
-  const pa=pa_deg*Math.PI/180, cp=Math.cos(pa), sp=Math.sin(pa);
-  const q=1-ellip, bnv=bn(ns), inv_n=1/ns, inv_Re=1/Re;
+// Source plane: uniform grid, same indexing
+function sersicDirect(cx,cy,Re,ns,ellip,pa_deg,I0){
+  const N=PROFILES[activeIdx].n,half=PROFILES[activeIdx].half;
+  const pa=pa_deg*Math.PI/180,cp=Math.cos(pa),sp=Math.sin(pa);
+  const q=1-ellip,bnv=bn(ns),inv_n=1/ns,inv_Re=1/Re;
   const step=2*half/N;
   const vals=new Float32Array(N*N);
   let vmax=0;
   for(let j=0;j<N;j++){
-    const by=-half+(j+.5)*step;
+    const by=-half+(j+.5)*step;   // j = y index
     for(let i=0;i<N;i++){
-      const bx=-half+(i+.5)*step;
+      const bx=-half+(i+.5)*step; // i = x index
       const dx=(bx-cx)*cp+(by-cy)*sp;
       const dy=-(bx-cx)*sp+(by-cy)*cp;
       const r=Math.sqrt(dx*dx+(dy/q)*(dy/q));
       const v=I0*Math.exp(-bnv*(Math.pow(r*inv_Re,inv_n)-1));
-      vals[j*N+i]=v;
+      vals[i+j*N]=v;
       if(v>vmax)vmax=v;
     }
   }
   return{vals,vmax};
 }
 
-function paintToCanvas(ctx, vals, vmax, N) {
+// Paint vals[i+j*N] (i=x col, j=y row) to canvas with y-flip and √-stretch
+// I0 controls absolute brightness: vmax_ref = reference at I0=1, we clamp at I0*vmax_ref
+function paintToCanvas(ctx,vals,vmax_ref,I0,N){
   const idata=ctx.createImageData(N,N);
   const pix=idata.data;
-  const inv=vmax>1e-12?1/vmax:0;
+  // Absolute brightness: I0 scales pixel values. vmax_ref is max at I0=1.
+  // We use fixed reference so I0 actually changes brightness (not just rescaled).
+  const inv=vmax_ref>1e-12?1/vmax_ref:0;
   for(let j=0;j<N;j++){
-    const row=N-1-j; // flip y
+    const row=N-1-j; // flip: j=0 (bottom in physics) -> row=N-1 (bottom of canvas)
     for(let i=0;i<N;i++){
-      const v=vals[j*N+i];
-      const t=Math.sqrt(Math.max(0,v*inv));
-      const ci=Math.min(255,Math.round(t*255));
+      // vals stored at [i+j*N], paint to canvas pixel (col=i, row=N-1-j)
+      const v=vals[i+j*N];
+      const t=Math.min(1,Math.sqrt(Math.max(0,v*inv*I0)));
+      const ci=Math.round(t*255);
       const b=(row*N+i)*4;
-      pix[b]=MLUT[ci*4]; pix[b+1]=MLUT[ci*4+1]; pix[b+2]=MLUT[ci*4+2]; pix[b+3]=255;
+      pix[b]=MLUT[ci*4];pix[b+1]=MLUT[ci*4+1];pix[b+2]=MLUT[ci*4+2];pix[b+3]=255;
     }
   }
   const off=new OffscreenCanvas(N,N);
@@ -314,81 +322,98 @@ function paintToCanvas(ctx, vals, vmax, N) {
   ctx.drawImage(off,0,0,SZ,SZ);
 }
 
-// ── RENDER ───────────────────────────────────────────────────────────────────
-function render() {
-  if(!beta1) return;
-  const {cx,cy,Re,ns,ellip,pa,I0}=P;
-  const {vals:lv,vmax:vm1}=sersicOnBeta(cx,cy,Re,ns,ellip,pa,I0);
-  const {vals:sv,vmax:vm2}=sersicDirect(cx,cy,Re,ns,ellip,pa,I0);
-  const i0=Math.max(I0,1e-12);
-  const vmax=Math.max(vm1/i0,vm2/i0,1e-10)*i0;
-  paintToCanvas(ctxI,lv,vmax,PROFILES[activeIdx].n);
-  paintToCanvas(ctxS,sv,vmax,PROFILES[activeIdx].n);
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  if(!beta1)return;
+  const{cx,cy,Re,ns,ellip,pa,I0}=P;
+  const N=PROFILES[activeIdx].n;
+  // Compute at I0=1 to get reference vmax, then I0 scales brightness in paint
+  const{vals:lv,vmax:vm1}=sersicOnBeta(cx,cy,Re,ns,ellip,pa,1.0);
+  const{vals:sv,vmax:vm2}=sersicDirect(cx,cy,Re,ns,ellip,pa,1.0);
+  const vmax_ref=Math.max(vm1,vm2,1e-10);
+  paintToCanvas(ctxI,lv,vmax_ref,I0,N);
+  paintToCanvas(ctxS,sv,vmax_ref,I0,N);
   drawOverlays();
 }
 
-function schedRender(){
-  if(rafId) cancelAnimationFrame(rafId);
-  rafId=requestAnimationFrame(render);
+function schedRender(){if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(render);}
+
+// ── SVG OVERLAYS ──────────────────────────────────────────────────────────────
+// All SVG coordinates in cinner space (full container, not just canvas)
+function canvasToSVG(px_canvas, py_canvas){
+  // Canvas sits centered in cinner; offX/offY = canvas left/top within cinner
+  return[offX+px_canvas, offY+py_canvas];
 }
 
-// ── SVG OVERLAYS ─────────────────────────────────────────────────────────────
-function mpc2px(x,y,half,flip=true){
+function mpc2canvas(x,y,half){
+  // x,y in Mpc -> canvas pixel coords (before y-flip relative to top)
   const px=(x+half)/(2*half)*SZ;
-  const py_=(y+half)/(2*half)*SZ;
-  return[px, flip?SZ-py_:py_];
+  const py=SZ-(y+half)/(2*half)*SZ; // flip y
+  return[px,py];
 }
 
-function circle(cx,cy,r,col,dash=''){
+function mpc2svg(x,y,half){
+  const[cpx,cpy]=mpc2canvas(x,y,half);
+  return canvasToSVG(cpx,cpy);
+}
+
+function fovRect(half){
+  // Rectangle showing the physical FOV boundary on the canvas
+  const[x0,y0]=canvasToSVG(0,0);
+  return`<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${SZ}" height="${SZ}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`;
+}
+
+function circle(cx_mpc,cy_mpc,r_mpc,col,dash=''){
   const prof=PROFILES[activeIdx];
-  const [px,py]=mpc2px(cx,cy,prof.half);
-  const rp=r/(2*prof.half)*SZ;
-  return`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rp.toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.2" ${dash?`stroke-dasharray="${dash}"`:''}  opacity=".85"/>`;
+  const[sx,sy]=mpc2svg(cx_mpc,cy_mpc,prof.half);
+  const rp=r_mpc/(2*prof.half)*SZ;
+  return`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${rp.toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.3" ${dash?`stroke-dasharray="${dash}"`:''}  opacity=".9"/>`;
 }
 
 function segs2path(segs,col){
   const prof=PROFILES[activeIdx];
   let out='';
   for(const seg of segs){
-    if(!seg.x||seg.x.length<2) continue;
+    if(!seg.x||seg.x.length<2)continue;
     let d='';
     for(let k=0;k<seg.x.length;k++){
-      const[px,py]=mpc2px(seg.x[k],seg.y[k],prof.half);
-      d+=(k?'L':'M')+px.toFixed(1)+' '+py.toFixed(1)+' ';
+      const[sx,sy]=mpc2svg(seg.x[k],seg.y[k],prof.half);
+      d+=(k?'L':'M')+sx.toFixed(1)+' '+sy.toFixed(1)+' ';
     }
-    out+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.3" opacity=".9"/>`;
+    out+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.4" opacity=".9"/>`;
   }
   return out;
 }
 
-function marker(x,y,col,sz=7){
+function markerSVG(x_mpc,y_mpc,col,sz=8){
   const prof=PROFILES[activeIdx];
-  const[cx,cy]=mpc2px(x,y,prof.half);
-  return`<line x1="${cx-sz}" y1="${cy}" x2="${cx+sz}" y2="${cy}" stroke="${col}" stroke-width="1.8" opacity=".9"/>
-         <line x1="${cx}" y1="${cy-sz}" x2="${cx}" y2="${cy+sz}" stroke="${col}" stroke-width="1.8" opacity=".9"/>`;
+  const[sx,sy]=mpc2svg(x_mpc,y_mpc,prof.half);
+  return`<line x1="${sx-sz}" y1="${sy}" x2="${sx+sz}" y2="${sy}" stroke="${col}" stroke-width="2" opacity=".95"/>
+         <line x1="${sx}" y1="${sy-sz}" x2="${sx}" y2="${sy+sz}" stroke="${col}" stroke-width="2" opacity=".95"/>`;
 }
 
 function drawOverlays(){
   const prof=PROFILES[activeIdx];
   const ov=overlays||{critical:[],caustic:[]};
+  const fov=fovRect(prof.half);
 
-  let si='', ii='';
+  let si=fov,ii=fov;
   if(P.showRs){
     si+=circle(0,0,prof.r_s,'var(--rs)','4 3');
     ii+=circle(0,0,prof.r_s,'var(--rs)','4 3');
   }
   if(P.showEinstein) ii+=circle(0,0,prof.r_E,'var(--einstein)');
-  if(P.showCrit) ii+=segs2path(ov.critical,'var(--critical)');
-  if(P.showCaus) si+=segs2path(ov.caustic,'var(--caustic)');
+  if(P.showCrit)     ii+=segs2path(ov.critical,'var(--critical)');
+  if(P.showCaus)     si+=segs2path(ov.caustic,'var(--caustic)');
   if(P.showMark){
-    si+=marker(P.cx,P.cy,'#ff6b6b');
-    ii+=marker(P.cx,P.cy,'#ffffff');
+    si+=markerSVG(P.cx,P.cy,'#ff6b6b');
+    ii+=markerSVG(P.cx,P.cy,'rgba(255,255,255,.9)');
   }
   document.getElementById('svg-src').innerHTML=si;
   document.getElementById('svg-img').innerHTML=ii;
 }
 
-// ── PROFILE LOADING ──────────────────────────────────────────────────────────
+// ── LOADING ───────────────────────────────────────────────────────────────────
 function setProgress(p,msg){
   document.getElementById('pfill').style.width=(p*100)+'%';
   document.getElementById('pmsg').textContent=msg;
@@ -399,12 +424,7 @@ async function loadBin(url,onP){
   const total=parseInt(r.headers.get('content-length')||'0');
   const reader=r.body.getReader();
   const chunks=[];let recv=0;
-  while(true){
-    const{done,value}=await reader.read();
-    if(done)break;
-    chunks.push(value);recv+=value.length;
-    if(total>0)onP(recv/total);
-  }
+  while(true){const{done,value}=await reader.read();if(done)break;chunks.push(value);recv+=value.length;if(total>0)onP(recv/total);}
   const buf=new Uint8Array(recv);let off=0;
   for(const c of chunks){buf.set(c,off);off+=c.length;}
   return new Float32Array(buf.buffer);
@@ -412,31 +432,25 @@ async function loadBin(url,onP){
 
 const cache={};
 
-async function loadProfile(idx, showLoading=false){
+async function loadProfile(idx,showLoading=false){
   const prof=PROFILES[idx];
-  const key=prof.prefix;
-  if(cache[key]){
-    beta1=cache[key].beta1;
-    beta2=cache[key].beta2;
-    overlays=cache[key].overlays;
-    return;
+  if(cache[prof.prefix]){
+    ({beta1,beta2,overlays}=cache[prof.prefix]); return;
   }
-  if(showLoading){
-    document.getElementById('loading').style.display='flex';
-  }
-  const base=`${prof.prefix}_`;
+  if(showLoading)document.getElementById('loading').style.display='flex';
+  const base=prof.prefix+'_';
   setProgress(0,`Chargement ${prof.label}…`);
   const b1=await loadBin(base+'beta1.bin',p=>setProgress(p*.45,`${prof.label} · beta1…`));
   const b2=await loadBin(base+'beta2.bin',p=>setProgress(.45+p*.45,`${prof.label} · beta2…`));
   setProgress(.9,'Overlays…');
   let ov={critical:[],caustic:[]};
   try{const r=await fetch(base+'overlays.json');ov=await r.json();}catch(e){}
-  cache[key]={beta1:b1,beta2:b2,overlays:ov};
+  cache[prof.prefix]={beta1:b1,beta2:b2,overlays:ov};
   beta1=b1;beta2=b2;overlays=ov;
   setProgress(1,'Prêt');
 }
 
-// ── PROFILE BUTTONS ──────────────────────────────────────────────────────────
+// ── PROFILE BUTTONS ───────────────────────────────────────────────────────────
 function buildProfileButtons(){
   const grid=document.getElementById('prof-grid');
   PROFILES.forEach((p,i)=>{
@@ -446,15 +460,15 @@ function buildProfileButtons(){
     const sub=p.ba===1.0?'Sphérique NFW':`b/a=${p.ba} · c/a=${p.ca}`;
     btn.innerHTML=`${p.label}<span class="sub">${sub}</span>`;
     btn.addEventListener('click',async()=>{
-      if(loading||parseInt(btn.dataset.idx)===activeIdx)return;
+      if(loading||+btn.dataset.idx===activeIdx)return;
       loading=true;
       document.querySelectorAll('.prof-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
-      activeIdx=parseInt(btn.dataset.idx);
+      activeIdx=+btn.dataset.idx;
       await loadProfile(activeIdx,true);
       updateInfo();
-      document.getElementById('img-title').childNodes[0].textContent=
-        `Plan image (θ) — ${PROFILES[activeIdx].label} `;
+      const t=document.getElementById('img-title');
+      t.childNodes[0].nodeValue=`Plan image (θ) — ${PROFILES[activeIdx].label} `;
       document.getElementById('loading').style.display='none';
       loading=false;
       schedRender();
@@ -466,71 +480,66 @@ function buildProfileButtons(){
 function updateInfo(){
   const p=PROFILES[activeIdx];
   document.getElementById('info-block').innerHTML=
-    `<b>${p.label}</b><br>z_l=${p.z_l||1.0} · z_s=${p.z_s||2.0}<br>M₂₀₀ = 2×10¹⁵ M☉ · c = 7<br>b/a = ${p.ba} · c/a = ${p.ca}<br>r_s = ${p.r_s.toFixed(3)} Mpc<br>θ_E ≈ ${p.r_E.toFixed(3)} Mpc`;
+    `<b>${p.label}</b><br>z_l = 1.0 · z_s = 2.0<br>M₂₀₀ = 2×10¹⁵ M☉ · c = 7<br>b/a = ${p.ba} · c/a = ${p.ca}<br>r_s = ${p.r_s.toFixed(3)} Mpc<br>θ_E ≈ ${p.r_E.toFixed(3)} Mpc`;
 }
 
-// ── SLIDERS ──────────────────────────────────────────────────────────────────
-function fmt(v,dec=3){return(v>=0?'+':'')+v.toFixed(dec)}
+// ── SLIDERS ───────────────────────────────────────────────────────────────────
+function fmt(v,d=3){return(v>=0?'+':'')+v.toFixed(d)}
 
 function setupSliders(){
   const sl=[
-    ['sx','vx',v=>{P.cx=+v;return fmt(+v)}],
-    ['sy','vy',v=>{P.cy=+v;return fmt(+v)}],
-    ['sre','vre',v=>{P.Re=+v;return(+v).toFixed(3)}],
-    ['sn','vn',v=>{P.ns=+v;return(+v).toFixed(1)}],
-    ['se','ve',v=>{P.ellip=+v;return(+v).toFixed(2)}],
-    ['spa','vpa',v=>{P.pa=+v;return(+v).toFixed(0)}],
-    ['si0','vi0',v=>{P.I0=+v;return(+v).toFixed(2)}],
+    ['sx','vx',   v=>{P.cx=+v;return fmt(+v)}],
+    ['sy','vy',   v=>{P.cy=+v;return fmt(+v)}],
+    ['sre','vre', v=>{P.Re=+v;return(+v).toFixed(3)}],
+    ['sn','vn',   v=>{P.ns=+v;return(+v).toFixed(1)}],
+    ['se','ve',   v=>{P.ellip=+v;return(+v).toFixed(2)}],
+    ['spa','vpa', v=>{P.pa=+v;return(+v).toFixed(0)+'°'}],
+    ['si0','vi0', v=>{P.I0=+v;return(+v).toFixed(2)+'×'}],
   ];
   for(const[id,vid,fn]of sl){
-    const el=document.getElementById(id);
-    const vel=document.getElementById(vid);
+    const el=document.getElementById(id),vel=document.getElementById(vid);
     el.addEventListener('input',()=>{vel.textContent=fn(el.value);schedRender();});
   }
   document.getElementById('breset').addEventListener('click',()=>{
-    [['sx',0],['sy',0],['sre',0.1],['sn',1.0],['se',0.3],['spa',30],['si0',1.0]].forEach(([id,v])=>{
-      document.getElementById(id).value=v;
-    });
+    const defaults=[['sx',0],['sy',0],['sre',0.1],['sn',1.0],['se',0.3],['spa',30],['si0',1.0]];
+    defaults.forEach(([id,v])=>document.getElementById(id).value=v);
     P.cx=0;P.cy=0;P.Re=0.1;P.ns=1.0;P.ellip=0.3;P.pa=30;P.I0=1.0;
     document.getElementById('vx').textContent='+0.000';
     document.getElementById('vy').textContent='+0.000';
     document.getElementById('vre').textContent='0.100';
     document.getElementById('vn').textContent='1.0';
     document.getElementById('ve').textContent='0.30';
-    document.getElementById('vpa').textContent='30';
-    document.getElementById('vi0').textContent='1.00';
+    document.getElementById('vpa').textContent='30°';
+    document.getElementById('vi0').textContent='1.00×';
     schedRender();
   });
 }
 
-// ── OVERLAY TOGGLES ──────────────────────────────────────────────────────────
+// ── OVERLAYS ──────────────────────────────────────────────────────────────────
 function setupOverlays(){
   const map=[['ov-einstein','showEinstein'],['ov-rs','showRs'],
              ['ov-crit','showCrit'],['ov-caus','showCaus'],['ov-mark','showMark']];
   for(const[id,key]of map){
     const row=document.getElementById(id);
-    row.addEventListener('click',()=>{
-      P[key]=!P[key];
-      row.classList.toggle('on',P[key]);
-      drawOverlays();
-    });
+    row.addEventListener('click',()=>{P[key]=!P[key];row.classList.toggle('on',P[key]);drawOverlays();});
   }
 }
 
-// ── DRAG ─────────────────────────────────────────────────────────────────────
+// ── DRAG ──────────────────────────────────────────────────────────────────────
+function canvasCoords(e){
+  const rect=csrc.getBoundingClientRect();
+  return[(e.clientX-rect.left)*(SZ/rect.width),(e.clientY-rect.top)*(SZ/rect.height)];
+}
 function px2mpc(px,py){
-  const prof=PROFILES[activeIdx];
-  return[(px/SZ)*2*prof.half-prof.half, ((SZ-py)/SZ)*2*prof.half-prof.half];
+  const half=PROFILES[activeIdx].half;
+  return[px/SZ*2*half-half, (SZ-py)/SZ*2*half-half];
 }
 
-function handleDrag(e){
-  const rect=csrc.getBoundingClientRect();
-  const px=(e.clientX-rect.left)*(SZ/rect.width);
-  const py=(e.clientY-rect.top)*(SZ/rect.height);
+function applyDrag(e){
+  const[px,py]=canvasCoords(e);
   let[mx,my]=px2mpc(px,py);
-  const lim=1.35;
-  mx=Math.max(-lim,Math.min(lim,mx));
-  my=Math.max(-lim,Math.min(lim,my));
+  mx=Math.max(-1.35,Math.min(1.35,mx));
+  my=Math.max(-1.35,Math.min(1.35,my));
   P.cx=mx;P.cy=my;
   document.getElementById('sx').value=mx;
   document.getElementById('sy').value=my;
@@ -541,40 +550,39 @@ function handleDrag(e){
 }
 
 function setupDrag(){
-  csrc.addEventListener('mousedown',e=>{dragging=true;handleDrag(e);});
+  csrc.addEventListener('mousedown',e=>{dragging=true;applyDrag(e);});
   window.addEventListener('mousemove',e=>{
-    if(dragging)handleDrag(e);
-    else if(e.target===csrc){
-      const rect=csrc.getBoundingClientRect();
-      const px=(e.clientX-rect.left)*(SZ/rect.width);
-      const py=(e.clientY-rect.top)*(SZ/rect.height);
+    if(dragging){applyDrag(e);return;}
+    if(e.target===csrc){
+      const[px,py]=canvasCoords(e);
       const[mx,my]=px2mpc(px,py);
       document.getElementById('coord-src').textContent=`β=(${mx.toFixed(3)}, ${my.toFixed(3)}) Mpc`;
     }
   });
   window.addEventListener('mouseup',()=>{dragging=false;});
-  csrc.addEventListener('touchstart',e=>{dragging=true;handleDrag(e.touches[0]);e.preventDefault();},{passive:false});
-  window.addEventListener('touchmove',e=>{if(dragging){handleDrag(e.touches[0]);e.preventDefault();}},{passive:false});
+  csrc.addEventListener('touchstart',e=>{dragging=true;applyDrag(e.touches[0]);e.preventDefault();},{passive:false});
+  window.addEventListener('touchmove',e=>{if(dragging){applyDrag(e.touches[0]);e.preventDefault();}},{passive:false});
   window.addEventListener('touchend',()=>{dragging=false;});
   cimg.addEventListener('mousemove',e=>{
     const rect=cimg.getBoundingClientRect();
-    const px=(e.clientX-rect.left)*(SZ/rect.width);
-    const py=(e.clientY-rect.top)*(SZ/rect.height);
+    const px=(e.clientX-rect.left)*(SZ/rect.width),py=(e.clientY-rect.top)*(SZ/rect.height);
     const[mx,my]=px2mpc(px,py);
     document.getElementById('coord-img').textContent=`θ=(${mx.toFixed(3)}, ${my.toFixed(3)}) Mpc`;
   });
 }
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
   setupSize();
   buildProfileButtons();
   setupSliders();
   setupOverlays();
   setupDrag();
+  // Also re-setup on resize
+  window.addEventListener('resize',()=>{setupSize();drawOverlays();});
   await loadProfile(0);
   updateInfo();
-  document.getElementById('img-title').childNodes[0].textContent=
+  document.getElementById('img-title').childNodes[0].nodeValue=
     `Plan image (θ) — ${PROFILES[0].label} `;
   document.getElementById('loading').style.display='none';
   render();
