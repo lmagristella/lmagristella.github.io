@@ -18,8 +18,8 @@ Gravitational lensing is an idea that is easy to describe but might be hard to v
 
 Two panels, side by side:
 
-- **Left — the source plane.** Where the galaxy *actually* is. A glowing blob you can move with the mouse (or the sliders).
-- **Right — the lensed sky.** What a telescope on Earth would *see* after a massive dark matter halo (at redshift 1, a few billion lightyears away from us) bends the light on its way to us (from redshift 2, a few more billions lightyears away).
+- **Left, the source plane.** Where the galaxy *actually* is. A glowing blob you can move with the mouse (or the sliders).
+- **Right, the lensed sky.** What a telescope on Earth would *see* after a massive dark matter halo (at redshift 1, a few billion lightyears away from us) bends the light on its way to us (from redshift 2, a few more billions lightyears away).
 
 Drag the source toward the center and watch your galaxy get split into arcs, break into multiple images and, in some cases, form a perfect circle: an Einstein ring. Every pixel of the resulting images come from photons traced through the curved spacetime around an NFW halo using EXCALIBUR, then mapped back to the sky.
 
