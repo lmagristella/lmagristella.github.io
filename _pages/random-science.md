@@ -5,28 +5,21 @@ layout: single
 author_profile: true
 ---
 
-## Interactive gravitational lensing applet
+Bienvenue dans ma section **Random Science** — une collection de billets courts autour d'idées, de visualisations, d'outils interactifs et de curiosités scientifiques liées à l'astrophysique, à la cosmologie et à d'autres sujets qui m'intéressent.
 
-Added an interactive educational applet for gravitational lensing visualization.
+## Posts
 
-This tool performs ray tracing of light propagation through different lens geometries (~1,000,000 photons per configuration).
+{% assign random_science_posts = site.posts | where_exp: "post", "post.categories contains 'random-science'" %}
 
-### Features
-
-The applet includes five distinct NFW lens configurations:
-
-- Spherical mass distribution (baseline case)
-- 3 prolate lenses with various orientations relative to the line of sight
-- Arbitrarily aligned triaxial lens 
-
-Each configuration is designed to highlight specific weak/strong lensing effects such as shear anisotropy, caustic formation, and projection effects.
-
-### Notes
-
-- Linux only for now
-- Mostly for educational and demonstrative purpose
-- Approx. 1 000 000 photons simulated per run
-
-### Access
-
-[Interactive EXCALIBUR lensing demo](https://github.com/lmagristella/excalibur-lensing-applet/releases/tag/v1.0)
+{% if random_science_posts.size > 0 %}
+<ul>
+  {% for post in random_science_posts %}
+    <li>
+      <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      <small>— {{ post.date | date: "%d/%m/%Y" }}</small>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Aucun billet pour le moment.</p>
+{% endif %}
