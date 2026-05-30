@@ -9,7 +9,11 @@
 :root {
   --bg:#07080f; --panel:#0d0f1a; --border:#1e2235;
   --accent:#c8a96e; --accent2:#6ec8c8; --text:#d4d8e8; --muted:#4a5070;
-  --critical:#f5e642; --caustic:#ff8c42; --einstein:#42ff8c; --rs:#42c8ff;
+  --crit-tan:#42ff8c;  /* tangential critical = Einstein ring */
+  --crit-rad:#f5e642;  /* radial critical */
+  --caust-tan:#ff8c42; /* tangential caustic */
+  --caust-rad:#ff42d8; /* radial caustic */
+  --rs:#42c8ff;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
@@ -20,14 +24,14 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;f
 #pfill{height:100%;background:var(--accent);width:0%;transition:width .15s}
 #pmsg{color:var(--muted);font-size:10px}
 
-header{padding:12px 20px 10px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;flex-shrink:0}
+header{padding:11px 20px 9px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;flex-shrink:0}
 header h1{font-family:'Crimson Pro',serif;font-weight:300;font-size:21px;letter-spacing:.08em;color:var(--accent)}
 header h1 span{color:var(--text)}
 .hmeta{font-size:10px;color:var(--muted)}
 
 .layout{display:flex;flex:1;overflow:hidden;min-height:0}
 
-.side{width:270px;min-width:250px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:14px;gap:16px;flex-shrink:0}
+.side{width:285px;min-width:265px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:14px;gap:15px;flex-shrink:0}
 .sec-lbl{font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;border-bottom:1px solid var(--border);padding-bottom:3px}
 
 .profile-grid{display:flex;flex-direction:column;gap:4px}
@@ -39,19 +43,23 @@ header h1 span{color:var(--text)}
 .sl-row{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .sl-hdr{display:flex;justify-content:space-between;align-items:center}
 .sl-lbl{color:var(--text);font-size:10px}
-.sl-val{font-size:10px;color:var(--accent);min-width:52px;text-align:right}
+.sl-val{font-size:10px;color:var(--accent);min-width:55px;text-align:right;font-variant-numeric:tabular-nums}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--border);outline:none;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer}
 input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer;border:none}
 
-.ov-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;user-select:none}
-.ov-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;opacity:.25;transition:opacity .15s}
+.ov-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;cursor:pointer;user-select:none}
+.ov-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;opacity:.25;transition:opacity .15s;border:1px solid transparent}
 .ov-row.on .ov-dot{opacity:1}
 .ov-row span{font-size:10px;color:var(--muted);transition:color .15s}
 .ov-row.on span{color:var(--text)}
+.ov-grp{display:flex;flex-direction:column;gap:2px;padding-left:0px}
+.ov-sublabel{font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin:6px 0 3px}
 
-.info{font-size:9px;color:var(--muted);line-height:1.8}
+.info{font-size:9px;color:var(--muted);line-height:1.7}
 .info b{color:var(--text)}
+.info .row{display:flex;justify-content:space-between;gap:8px}
+.info .row span:last-child{color:var(--accent2);font-variant-numeric:tabular-nums}
 
 button.reset{width:100%;padding:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer;transition:all .15s;text-transform:uppercase}
 button.reset:hover{border-color:var(--accent);color:var(--accent)}
@@ -59,17 +67,19 @@ button.reset:hover{border-color:var(--accent);color:var(--accent)}
 .canvases{flex:1;display:flex;overflow:hidden;min-width:0}
 .cwrap{flex:1;display:flex;flex-direction:column;min-width:0}
 .cwrap:first-child{border-right:1px solid var(--border)}
-.ctitle{padding:6px 12px;font-size:10px;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--panel);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.ctitle{padding:6px 12px;font-size:10px;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--panel);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:12px}
 .ccoord{color:var(--accent);font-size:9px;font-variant-numeric:tabular-nums}
 
-/* The key: cinner is the coordinate reference. Canvas and SVG fill it exactly. */
 .cinner{position:relative;flex:1;overflow:hidden;background:#000}
 canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:crosshair;image-rendering:pixelated}
 svg.ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 
 #hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);pointer-events:none;white-space:nowrap;opacity:.5;z-index:10}
 
-footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);display:flex;justify-content:space-between;font-style:italic;flex-shrink:0}
+footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);display:flex;justify-content:space-between;font-style:italic;flex-shrink:0;gap:16px}
+footer .legend{display:flex;gap:12px;align-items:center;font-style:normal}
+footer .legend span{display:flex;align-items:center;gap:4px}
+footer .legend .ddot{width:8px;height:8px;border-radius:50%}
 </style>
 </head>
 <body>
@@ -87,10 +97,12 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
 
 <div class="layout">
 <div class="side">
+
   <div>
     <div class="sec-lbl">Lens profile</div>
     <div class="profile-grid" id="prof-grid"></div>
   </div>
+
   <div>
     <div class="sec-lbl">Source position</div>
     <div class="sl-row">
@@ -102,6 +114,7 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
       <input type="range" id="sy" min="-1.35" max="1.35" step="0.001" value="0">
     </div>
   </div>
+
   <div>
     <div class="sec-lbl">Source profile</div>
     <div class="sl-row">
@@ -125,16 +138,51 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
       <input type="range" id="si0" min="0.1" max="3.0" step="0.01" value="1.0">
     </div>
   </div>
+
   <div>
     <div class="sec-lbl">Overlays</div>
-    <div class="ov-row on" id="ov-einstein"><div class="ov-dot" style="background:var(--einstein)"></div><span>Einstein θ_E</span></div>
-    <div class="ov-row on" id="ov-rs"><div class="ov-dot" style="background:var(--rs)"></div><span>Scale radius r_s</span></div>
-    <div class="ov-row" id="ov-crit"><div class="ov-dot" style="background:var(--critical)"></div><span>Courbe critique</span></div>
-    <div class="ov-row" id="ov-caus"><div class="ov-dot" style="background:var(--caustic)"></div><span>Caustique</span></div>
-    <div class="ov-row on" id="ov-mark"><div class="ov-dot" style="background:#fff"></div><span>Marqueur source</span></div>
+
+    <div class="ov-sublabel">Plan image — courbes critiques</div>
+    <div class="ov-grp">
+      <div class="ov-row on" id="ov-crit-tan">
+        <div class="ov-dot" style="background:var(--crit-tan)"></div>
+        <span>Critique tangentielle (anneau)</span>
+      </div>
+      <div class="ov-row" id="ov-crit-rad">
+        <div class="ov-dot" style="background:var(--crit-rad)"></div>
+        <span>Critique radiale</span>
+      </div>
+    </div>
+
+    <div class="ov-sublabel">Plan source — caustiques</div>
+    <div class="ov-grp">
+      <div class="ov-row" id="ov-caust-tan">
+        <div class="ov-dot" style="background:var(--caust-tan)"></div>
+        <span>Caustique tangentielle</span>
+      </div>
+      <div class="ov-row" id="ov-caust-rad">
+        <div class="ov-dot" style="background:var(--caust-rad)"></div>
+        <span>Caustique radiale</span>
+      </div>
+    </div>
+
+    <div class="ov-sublabel">Repères</div>
+    <div class="ov-grp">
+      <div class="ov-row on" id="ov-rs">
+        <div class="ov-dot" style="background:var(--rs)"></div>
+        <span>Scale radius r_s</span>
+      </div>
+      <div class="ov-row on" id="ov-mark">
+        <div class="ov-dot" style="background:#fff"></div>
+        <span>Marqueur source</span>
+      </div>
+    </div>
   </div>
+
   <button class="reset" id="breset">↺ Reset</button>
+
   <div class="info" id="info-block">–</div>
+
 </div>
 
 <div class="canvases">
@@ -152,61 +200,57 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
       <svg class="ov" id="svg-img"></svg>
     </div>
   </div>
-  <div id="hint">Drag sur le plan source · Sliders pour modifier la source</div>
+  <div id="hint">Drag sur le plan source · La source touchant une caustique = multiplication d'images</div>
 </div>
 </div>
 
 <footer>
   <span>EXCALIBUR · Laurent Magri-Stella</span>
-  <span>768² photons par profil · rendu Canvas 2D</span>
+  <span class="legend">
+    <span><span class="ddot" style="background:var(--crit-tan)"></span>tan.</span>
+    <span><span class="ddot" style="background:var(--crit-rad)"></span>rad.</span>
+  </span>
 </footer>
 
 <script>
 const PROFILES = [
-  {label:"Spherical",              prefix:"spherical",  n:768,  half:1.47, r_E:0.3077, r_s:0.3713, ba:1.0, ca:1.0},
-  {label:"Elliptical (b/a=0.60)", prefix:"elliptical", n:768,  half:1.47, r_E:0.3849, r_s:0.5219, ba:0.6, ca:0.6},
-  {label:"Inclined 45° (prolate)", prefix:"inclined",  n:1000, half:1.50, r_E:0.3183, r_s:0.5219, ba:0.6, ca:0.6},
-  {label:"Cigar ∥ LOS (b/a=0.50)",prefix:"cigar",     n:1000, half:1.50, r_E:0.4008, r_s:0.5894, ba:0.5, ca:0.5},
-  {label:"Triaxial (random)",      prefix:"triaxial",  n:1000, half:1.50, r_E:0.2941, r_s:0.5675, ba:0.7, ca:0.4},
+  {label:"Spherical",              prefix:"spherical",  n:768,  half:1.47,
+   r_E_mean:0.3077, r_E_a:0.3128, r_E_b:0.3039, r_s:0.3713, ba:1.0, ca:1.0},
+  {label:"Elliptical (b/a=0.60)", prefix:"elliptical", n:768,  half:1.47,
+   r_E_mean:0.2896, r_E_a:0.3867, r_E_b:0.1802, r_s:0.5219, ba:0.6, ca:0.6},
+  {label:"Inclined 45° (prolate)", prefix:"inclined",  n:1000, half:1.50,
+   r_E_mean:0.3183, r_E_a:0.3818, r_E_b:0.2499, r_s:0.5219, ba:0.6, ca:0.6},
+  {label:"Cigar ∥ LOS (b/a=0.50)", prefix:"cigar",    n:1000, half:1.50,
+   r_E_mean:0.4008, r_E_a:0.4008, r_E_b:0.4008, r_s:0.5894, ba:0.5, ca:0.5},
+  {label:"Triaxial (random)",      prefix:"triaxial",  n:1000, half:1.50,
+   r_E_mean:0.2941, r_E_a:0.3512, r_E_b:0.2369, r_s:0.5675, ba:0.7, ca:0.4},
 ];
 
 let activeIdx=0, beta1=null, beta2=null, overlays=null;
 let loading=false, dragging=false, rafId=null;
 const P={cx:0,cy:0,Re:0.1,ns:1.0,ellip:0.3,pa:30,I0:1.0,
-         showEinstein:true,showRs:true,showCrit:false,showCaus:false,showMark:true};
+         showCritTan:true, showCritRad:false,
+         showCaustTan:false, showCaustRad:false,
+         showRs:true, showMark:true};
 
-// ── CANVAS DIMENSIONS ────────────────────────────────────────────────────────
-// canvasW/H = internal pixel resolution of each canvas = CSS pixel size of .cinner
-// (canvas CSS width/height = 100% of .cinner, so 1 canvas px = 1 CSS px = consistent coords)
-// No DPR scaling: we trade some sharpness for guaranteed correct mouse mapping.
 const csrc=document.getElementById('csrc');
 const cimg=document.getElementById('cimg');
 const ctxS=csrc.getContext('2d');
 const ctxI=cimg.getContext('2d');
-let cW=1, cH=1; // cinner size in CSS pixels (used for mouse mapping and SVG)
-let DPR=1;       // devicePixelRatio (canvas internal resolution multiplier)
+let DPR=1;
 
 function setupSize(){
-  DPR = Math.min(window.devicePixelRatio || 1, 3); // cap at 3× to avoid OOM
-  const wS=document.getElementById('wrap-src');
-  const wI=document.getElementById('wrap-img');
-  // getBoundingClientRect = CSS pixels (layout units, DPR-independent)
-  const rS=wS.getBoundingClientRect();
-  const rI=wI.getBoundingClientRect();
-  cW=Math.round(rS.width);
-  cH=Math.round(rS.height);
-  // Canvas internal resolution = CSS size × DPR → uses all physical pixels on Retina
-  csrc.width =Math.round(rS.width  * DPR);
-  csrc.height=Math.round(rS.height * DPR);
-  cimg.width =Math.round(rI.width  * DPR);
-  cimg.height=Math.round(rI.height * DPR);
-  // CSS display size stays at 100%×100% (set in stylesheet), so browser scales up cleanly
-  // SVG viewBox stays in CSS pixels (SVG coords = mouse coords = CSS pixels)
-  document.getElementById('svg-src').setAttribute('viewBox',`0 0 ${cW} ${cH}`);
-  document.getElementById('svg-img').setAttribute('viewBox',`0 0 ${Math.round(rI.width)} ${Math.round(rI.height)}`);
+  DPR = Math.min(window.devicePixelRatio || 1, 3);
+  const wS=document.getElementById('wrap-src').getBoundingClientRect();
+  const wI=document.getElementById('wrap-img').getBoundingClientRect();
+  csrc.width =Math.round(wS.width  * DPR);
+  csrc.height=Math.round(wS.height * DPR);
+  cimg.width =Math.round(wI.width  * DPR);
+  cimg.height=Math.round(wI.height * DPR);
+  document.getElementById('svg-src').setAttribute('viewBox',`0 0 ${Math.round(wS.width)} ${Math.round(wS.height)}`);
+  document.getElementById('svg-img').setAttribute('viewBox',`0 0 ${Math.round(wI.width)} ${Math.round(wI.height)}`);
 }
 
-// ── MAGMA LUT ─────────────────────────────────────────────────────────────────
 const MLUT=(()=>{
   const stops=[[0,0,4],[3,0,6],[8,1,14],[15,1,23],[23,2,33],[32,3,43],[41,4,54],
     [51,6,64],[61,9,74],[71,12,83],[81,16,91],[91,20,99],[101,25,107],[111,31,113],
@@ -227,12 +271,8 @@ const MLUT=(()=>{
   return lut;
 })();
 
-// ── SERSIC ────────────────────────────────────────────────────────────────────
 function bn(n){return 2*n-1/3+4/(405*n)+46/(25515*n*n)}
 
-// Render at the beta-array resolution (N×N), returns Float32Array vals[i+j*N]
-// where i=x-index (0..N-1), j=y-index (0..N-1)
-// Beta stored F-order: flat[i+j*N] = beta[x_i, y_j]
 function sersicOnBeta(cx,cy,Re,ns,ellip,pa_deg){
   const N=PROFILES[activeIdx].n;
   const pa=pa_deg*Math.PI/180,cp=Math.cos(pa),sp=Math.sin(pa);
@@ -275,15 +315,12 @@ function sersicDirect(cx,cy,Re,ns,ellip,pa_deg){
   return{vals,vmax};
 }
 
-// Paint N×N vals array (i=x, j=y, y-up convention) onto ctx (W×H canvas)
-// I0 scales brightness; vmax_ref is the reference max (at I0=1)
 function paintToCanvas(ctx, vals, N, W, H, vmax_ref, I0){
-  // We draw the N×N image scaled to W×H
   const idata=new ImageData(N,N);
   const pix=idata.data;
   const inv=vmax_ref>1e-12?1/vmax_ref:0;
   for(let j=0;j<N;j++){
-    const row=N-1-j; // flip y: j=0 (y_min, bottom) -> row=N-1 (bottom of canvas)
+    const row=N-1-j;
     for(let i=0;i<N;i++){
       const v=vals[i+j*N];
       const t=Math.min(1,Math.sqrt(Math.max(0,v*inv*I0)));
@@ -297,7 +334,6 @@ function paintToCanvas(ctx, vals, N, W, H, vmax_ref, I0){
   ctx.drawImage(off,0,0,W,H);
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────────
 function render(){
   if(!beta1)return;
   const{cx,cy,Re,ns,ellip,pa,I0}=P;
@@ -312,32 +348,24 @@ function render(){
 
 function schedRender(){if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(render);}
 
-// ── COORDINATE CONVERSION ────────────────────────────────────────────────────
-// All SVG/mouse coords are in CSS pixels = cinner pixel coords.
-// mpc2px: Mpc → CSS pixel position within cinner (matching canvas layout)
-// Canvas is W×H CSS pixels, covers [-half,+half] × [-half,+half] Mpc
-// x increases left→right, y increases bottom→top (physics), but canvas y increases top→bottom
-
 function mpc2px(x_mpc, y_mpc, W, H, half){
   const px = (x_mpc + half) / (2*half) * W;
-  const py = H - (y_mpc + half) / (2*half) * H;  // flip y
+  const py = H - (y_mpc + half) / (2*half) * H;
   return [px, py];
 }
 
 function px2mpc(px, py, W, H, half){
-  const x = px / W * 2*half - half;
-  const y = (H - py) / H * 2*half - half;
-  return [x, y];
+  return [px / W * 2*half - half, (H - py) / H * 2*half - half];
 }
 
-// ── SVG OVERLAYS ──────────────────────────────────────────────────────────────
 function circle(cx_m, cy_m, r_m, col, dash, W, H, half){
   const[px,py]=mpc2px(cx_m,cy_m,W,H,half);
   const rp=r_m/(2*half)*W;
   return`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rp.toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.3" ${dash?`stroke-dasharray="${dash}"`:''}  opacity=".9"/>`;
 }
 
-function segs2path(segs, col, W, H, half){
+function segs2path(segs, col, W, H, half, sw=1.4){
+  if(!segs||!segs.length)return '';
   let out='';
   for(const seg of segs){
     if(!seg.x||seg.x.length<2)continue;
@@ -346,7 +374,7 @@ function segs2path(segs, col, W, H, half){
       const[px,py]=mpc2px(seg.x[k],seg.y[k],W,H,half);
       d+=(k?'L':'M')+px.toFixed(1)+' '+py.toFixed(1)+' ';
     }
-    out+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.4" opacity=".9"/>`;
+    out+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="${sw}" opacity=".92"/>`;
   }
   return out;
 }
@@ -358,37 +386,37 @@ function markerSVG(x_m, y_m, col, W, H, half, sz=8){
 }
 
 function fovBorder(W,H){
-  // Subtle border marking the exact edge of the lensing FOV
   return`<rect x="0.5" y="0.5" width="${W-1}" height="${H-1}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>`;
 }
 
 function drawOverlays(){
   const prof=PROFILES[activeIdx];
-  const ov=overlays||{critical:[],caustic:[]};
-  // SVG coords are in CSS pixels (viewBox = CSS size)
-  // Canvas coords are in physical pixels (canvas.width = CSS * DPR)
-  // For overlays we use CSS pixels throughout (SVG-consistent)
+  const ov=overlays||{};
   const WS=csrc.width/DPR, HS=csrc.height/DPR;
   const WI=cimg.width/DPR, HI=cimg.height/DPR;
   const half=prof.half;
 
   let si=fovBorder(WS,HS), ii=fovBorder(WI,HI);
+
   if(P.showRs){
     si+=circle(0,0,prof.r_s,'var(--rs)','4 3',WS,HS,half);
     ii+=circle(0,0,prof.r_s,'var(--rs)','4 3',WI,HI,half);
   }
-  if(P.showEinstein) ii+=circle(0,0,prof.r_E,'var(--einstein)','',WI,HI,half);
-  if(P.showCrit)     ii+=segs2path(ov.critical,'var(--critical)',WI,HI,half);
-  if(P.showCaus)     si+=segs2path(ov.caustic,'var(--caustic)',WS,HS,half);
+  // Critical curves go on image plane
+  if(P.showCritTan) ii+=segs2path(ov.critical_tangential,'var(--crit-tan)',WI,HI,half,1.5);
+  if(P.showCritRad) ii+=segs2path(ov.critical_radial,'var(--crit-rad)',WI,HI,half,1.3);
+  // Caustics go on source plane
+  if(P.showCaustTan) si+=segs2path(ov.caustic_tangential,'var(--caust-tan)',WS,HS,half,1.5);
+  if(P.showCaustRad) si+=segs2path(ov.caustic_radial,'var(--caust-rad)',WS,HS,half,1.3);
+
   if(P.showMark){
     si+=markerSVG(P.cx,P.cy,'#ff6b6b',WS,HS,half);
-    ii+=markerSVG(P.cx,P.cy,'rgba(255,255,255,.9)',WI,HI,half);
+    ii+=markerSVG(P.cx,P.cy,'rgba(255,255,255,.95)',WI,HI,half);
   }
   document.getElementById('svg-src').innerHTML=si;
   document.getElementById('svg-img').innerHTML=ii;
 }
 
-// ── LOADING ───────────────────────────────────────────────────────────────────
 function setProgress(p,msg){
   document.getElementById('pfill').style.width=(p*100)+'%';
   document.getElementById('pmsg').textContent=msg;
@@ -414,15 +442,14 @@ async function loadProfile(idx,showLoading=false){
   setProgress(0,`Chargement ${prof.label}…`);
   const b1=await loadBin(base+'beta1.bin',p=>setProgress(p*.45,`${prof.label} · beta1…`));
   const b2=await loadBin(base+'beta2.bin',p=>setProgress(.45+p*.45,`${prof.label} · beta2…`));
-  setProgress(.9,'Overlays…');
-  let ov={critical:[],caustic:[]};
+  setProgress(.92,'Overlays…');
+  let ov={};
   try{const r=await fetch(base+'overlays.json');ov=await r.json();}catch(e){}
   cache[prof.prefix]={beta1:b1,beta2:b2,overlays:ov};
   beta1=b1;beta2=b2;overlays=ov;
   setProgress(1,'Prêt');
 }
 
-// ── PROFILE BUTTONS ───────────────────────────────────────────────────────────
 function buildProfileButtons(){
   const grid=document.getElementById('prof-grid');
   PROFILES.forEach((p,i)=>{
@@ -450,11 +477,20 @@ function buildProfileButtons(){
 
 function updateInfo(){
   const p=PROFILES[activeIdx];
-  document.getElementById('info-block').innerHTML=
-    `<b>${p.label}</b><br>z_l = 1.0 · z_s = 2.0<br>M₂₀₀ = 2×10¹⁵ M☉ · c = 7<br>b/a = ${p.ba} · c/a = ${p.ca}<br>r_s = ${p.r_s.toFixed(3)} Mpc<br>θ_E ≈ ${p.r_E.toFixed(3)} Mpc`;
+  const isAxisymmetric = Math.abs(p.r_E_a - p.r_E_b) < 0.01;
+  const rE_line = isAxisymmetric
+    ? `<div class="row"><span>θ_E ≈</span><span>${p.r_E_mean.toFixed(3)} Mpc</span></div>`
+    : `<div class="row"><span>θ_E (a×b)</span><span>${p.r_E_a.toFixed(3)} × ${p.r_E_b.toFixed(3)}</span></div>`;
+  document.getElementById('info-block').innerHTML =
+    `<b>${p.label}</b><br>` +
+    `<div class="row"><span>z_l, z_s</span><span>1.0, 2.0</span></div>` +
+    `<div class="row"><span>M₂₀₀</span><span>2×10¹⁵ M☉</span></div>` +
+    `<div class="row"><span>c, b/a, c/a</span><span>7 · ${p.ba} · ${p.ca}</span></div>` +
+    `<div class="row"><span>r_s</span><span>${p.r_s.toFixed(3)} Mpc</span></div>` +
+    rE_line +
+    `<div class="row"><span>Résolution</span><span>${p.n}²</span></div>`;
 }
 
-// ── SLIDERS ───────────────────────────────────────────────────────────────────
 function fmt(v,d=3){return(v>=0?'+':'')+v.toFixed(d)}
 
 function setupSliders(){
@@ -475,32 +511,26 @@ function setupSliders(){
     [['sx',0],['sy',0],['sre',0.1],['sn',1.0],['se',0.3],['spa',30],['si0',1.0]]
       .forEach(([id,v])=>document.getElementById(id).value=v);
     P.cx=0;P.cy=0;P.Re=0.1;P.ns=1.0;P.ellip=0.3;P.pa=30;P.I0=1.0;
-    ['vx','+0.000'],['vy','+0.000'],['vre','0.100'],['vn','1.0'],
-    ['ve','0.30'],['vpa','30°'],['vi0','1.00×']
+    [['vx','+0.000'],['vy','+0.000'],['vre','0.100'],['vn','1.0'],
+     ['ve','0.30'],['vpa','30°'],['vi0','1.00×']]
       .forEach(([id,v])=>document.getElementById(id).textContent=v);
     schedRender();
   });
 }
 
-// ── OVERLAYS ──────────────────────────────────────────────────────────────────
 function setupOverlays(){
-  [['ov-einstein','showEinstein'],['ov-rs','showRs'],
-   ['ov-crit','showCrit'],['ov-caus','showCaus'],['ov-mark','showMark']]
+  [['ov-crit-tan','showCritTan'],['ov-crit-rad','showCritRad'],
+   ['ov-caust-tan','showCaustTan'],['ov-caust-rad','showCaustRad'],
+   ['ov-rs','showRs'],['ov-mark','showMark']]
   .forEach(([id,key])=>{
     const row=document.getElementById(id);
     row.addEventListener('click',()=>{P[key]=!P[key];row.classList.toggle('on',P[key]);drawOverlays();});
   });
 }
 
-// ── DRAG ──────────────────────────────────────────────────────────────────────
-// Mouse/touch coords are in CSS pixels. Canvas internal pixels = CSS px × DPR.
-// So: canvas_px = (clientX - rect.left) * DPR
 function eventToCanvasPx(e, canvas){
   const rect=canvas.getBoundingClientRect();
-  return[
-    (e.clientX - rect.left) * DPR,
-    (e.clientY - rect.top)  * DPR,
-  ];
+  return[(e.clientX - rect.left)*DPR, (e.clientY - rect.top)*DPR];
 }
 
 function applyDrag(e){
@@ -541,14 +571,22 @@ function setupDrag(){
   });
 }
 
-// ── RESIZE ────────────────────────────────────────────────────────────────────
+// Keyboard shortcuts
+document.addEventListener('keydown',(e)=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.key==='r'||e.key==='R') document.getElementById('breset').click();
+  if(e.key==='t') document.getElementById('ov-crit-tan').click();
+  if(e.key==='y') document.getElementById('ov-crit-rad').click();
+  if(e.key==='c') document.getElementById('ov-caust-tan').click();
+  if(e.key==='v') document.getElementById('ov-caust-rad').click();
+});
+
 let resizeTimer=null;
 window.addEventListener('resize',()=>{
   clearTimeout(resizeTimer);
   resizeTimer=setTimeout(()=>{setupSize();schedRender();},100);
 });
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
   setupSize();
   buildProfileButtons();
