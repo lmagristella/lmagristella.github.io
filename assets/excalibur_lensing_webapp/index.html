@@ -12,7 +12,7 @@
   --critical:#f5e642; --caustic:#ff8c42; --einstein:#42ff8c; --rs:#42c8ff;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;min-height:100vh;display:flex;flex-direction:column}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
 #loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:100}
 #loading h2{font-family:'Crimson Pro',serif;font-weight:300;font-size:22px;color:var(--accent);letter-spacing:.1em}
@@ -27,7 +27,6 @@ header h1 span{color:var(--text)}
 
 .layout{display:flex;flex:1;overflow:hidden;min-height:0}
 
-/* SIDE PANEL — wider */
 .side{width:270px;min-width:250px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:14px;gap:16px;flex-shrink:0}
 .sec-lbl{font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;border-bottom:1px solid var(--border);padding-bottom:3px}
 
@@ -57,25 +56,18 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
 button.reset{width:100%;padding:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer;transition:all .15s;text-transform:uppercase}
 button.reset:hover{border-color:var(--accent);color:var(--accent)}
 
-/* CANVAS AREA */
 .canvases{flex:1;display:flex;overflow:hidden;min-width:0}
-.cwrap{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
-/* Separator between the two panels */
+.cwrap{flex:1;display:flex;flex-direction:column;min-width:0}
 .cwrap:first-child{border-right:1px solid var(--border)}
-
 .ctitle{padding:6px 12px;font-size:10px;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--panel);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .ccoord{color:var(--accent);font-size:9px;font-variant-numeric:tabular-nums}
 
-/* Inner canvas container: fills remaining height */
-.cinner{position:relative;flex:1;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+/* The key: cinner is the coordinate reference. Canvas and SVG fill it exactly. */
+.cinner{position:relative;flex:1;overflow:hidden;background:#000}
+canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:crosshair;image-rendering:pixelated}
+svg.ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 
-/* FOV boundary rectangle drawn in SVG */
-.fov-rect{fill:none;stroke:rgba(255,255,255,.12);stroke-width:1px}
-
-canvas{display:block;cursor:crosshair;image-rendering:pixelated;max-width:100%;max-height:100%;object-fit:contain}
-svg.ov{position:absolute;top:0;left:0;pointer-events:none;width:100%;height:100%}
-
-#hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);pointer-events:none;white-space:nowrap;opacity:.5}
+#hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);pointer-events:none;white-space:nowrap;opacity:.5;z-index:10}
 
 footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);display:flex;justify-content:space-between;font-style:italic;flex-shrink:0}
 </style>
@@ -95,12 +87,10 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
 
 <div class="layout">
 <div class="side">
-
   <div>
     <div class="sec-lbl">Lens profile</div>
     <div class="profile-grid" id="prof-grid"></div>
   </div>
-
   <div>
     <div class="sec-lbl">Source position</div>
     <div class="sl-row">
@@ -112,7 +102,6 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
       <input type="range" id="sy" min="-1.35" max="1.35" step="0.001" value="0">
     </div>
   </div>
-
   <div>
     <div class="sec-lbl">Source profile</div>
     <div class="sl-row">
@@ -128,37 +117,24 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
       <input type="range" id="se" min="0" max="0.85" step="0.01" value="0.3">
     </div>
     <div class="sl-row">
-      <div class="sl-hdr"><span class="sl-lbl">PA [°]</span><span class="sl-val" id="vpa">30</span></div>
+      <div class="sl-hdr"><span class="sl-lbl">PA [°]</span><span class="sl-val" id="vpa">30°</span></div>
       <input type="range" id="spa" min="0" max="180" step="1" value="30">
     </div>
     <div class="sl-row">
-      <div class="sl-hdr"><span class="sl-lbl">Luminosité I₀</span><span class="sl-val" id="vi0">1.00</span></div>
+      <div class="sl-hdr"><span class="sl-lbl">Luminosité I₀</span><span class="sl-val" id="vi0">1.00×</span></div>
       <input type="range" id="si0" min="0.1" max="3.0" step="0.01" value="1.0">
     </div>
   </div>
-
   <div>
     <div class="sec-lbl">Overlays</div>
-    <div class="ov-row on" id="ov-einstein">
-      <div class="ov-dot" style="background:var(--einstein)"></div><span>Einstein θ_E</span>
-    </div>
-    <div class="ov-row on" id="ov-rs">
-      <div class="ov-dot" style="background:var(--rs)"></div><span>Scale radius r_s</span>
-    </div>
-    <div class="ov-row" id="ov-crit">
-      <div class="ov-dot" style="background:var(--critical)"></div><span>Courbe critique</span>
-    </div>
-    <div class="ov-row" id="ov-caus">
-      <div class="ov-dot" style="background:var(--caustic)"></div><span>Caustique</span>
-    </div>
-    <div class="ov-row on" id="ov-mark">
-      <div class="ov-dot" style="background:#fff"></div><span>Marqueur source</span>
-    </div>
+    <div class="ov-row on" id="ov-einstein"><div class="ov-dot" style="background:var(--einstein)"></div><span>Einstein θ_E</span></div>
+    <div class="ov-row on" id="ov-rs"><div class="ov-dot" style="background:var(--rs)"></div><span>Scale radius r_s</span></div>
+    <div class="ov-row" id="ov-crit"><div class="ov-dot" style="background:var(--critical)"></div><span>Courbe critique</span></div>
+    <div class="ov-row" id="ov-caus"><div class="ov-dot" style="background:var(--caustic)"></div><span>Caustique</span></div>
+    <div class="ov-row on" id="ov-mark"><div class="ov-dot" style="background:#fff"></div><span>Marqueur source</span></div>
   </div>
-
   <button class="reset" id="breset">↺ Reset</button>
   <div class="info" id="info-block">–</div>
-
 </div>
 
 <div class="canvases">
@@ -199,31 +175,30 @@ let loading=false, dragging=false, rafId=null;
 const P={cx:0,cy:0,Re:0.1,ns:1.0,ellip:0.3,pa:30,I0:1.0,
          showEinstein:true,showRs:true,showCrit:false,showCaus:false,showMark:true};
 
-// ── CANVAS ───────────────────────────────────────────────────────────────────
+// ── CANVAS DIMENSIONS ────────────────────────────────────────────────────────
+// canvasW/H = internal pixel resolution of each canvas = CSS pixel size of .cinner
+// (canvas CSS width/height = 100% of .cinner, so 1 canvas px = 1 CSS px = consistent coords)
+// No DPR scaling: we trade some sharpness for guaranteed correct mouse mapping.
 const csrc=document.getElementById('csrc');
 const cimg=document.getElementById('cimg');
 const ctxS=csrc.getContext('2d');
 const ctxI=cimg.getContext('2d');
-let SZ=512, offX=0, offY=0; // canvas offset within cinner
+let cW=1, cH=1; // actual cinner dimensions in CSS px, set in setupSize
 
 function setupSize(){
-  // Make canvases square, fitting within their container
   const wS=document.getElementById('wrap-src');
   const wI=document.getElementById('wrap-img');
-  const W=Math.min(wS.clientWidth, wI.clientWidth);
-  const H=Math.min(wS.clientHeight, wI.clientHeight);
-  SZ=Math.min(W,H,750);
-  for(const c of[csrc,cimg]){c.width=c.height=SZ;c.style.width=c.style.height=SZ+'px';}
-  for(const id of['svg-src','svg-img']){
-    const s=document.getElementById(id);
-    s.setAttribute('viewBox',`0 0 ${wS.clientWidth} ${wS.clientHeight}`);
-    s.style.width=wS.clientWidth+'px';
-    s.style.height=wS.clientHeight+'px';
-  }
-  // Compute canvas offset within cinner (for drag coordinate mapping)
-  const r=csrc.getBoundingClientRect();
-  const rw=wS.getBoundingClientRect();
-  offX=r.left-rw.left; offY=r.top-rw.top;
+  // getBoundingClientRect returns CSS pixels (DPR-independent for layout)
+  const rS=wS.getBoundingClientRect();
+  const rI=wI.getBoundingClientRect();
+  cW=Math.round(rS.width);
+  cH=Math.round(rS.height);
+  // Internal resolution = CSS size (so mouse CSS coords map 1:1 to canvas pixels)
+  csrc.width=cW; csrc.height=cH;
+  cimg.width=Math.round(rI.width); cimg.height=Math.round(rI.height);
+  // SVG viewBox matches cinner size exactly
+  document.getElementById('svg-src').setAttribute('viewBox',`0 0 ${cW} ${cH}`);
+  document.getElementById('svg-img').setAttribute('viewBox',`0 0 ${Math.round(rI.width)} ${Math.round(rI.height)}`);
 }
 
 // ── MAGMA LUT ─────────────────────────────────────────────────────────────────
@@ -250,47 +225,22 @@ const MLUT=(()=>{
 // ── SERSIC ────────────────────────────────────────────────────────────────────
 function bn(n){return 2*n-1/3+4/(405*n)+46/(25515*n*n)}
 
-// beta arrays stored in Fortran order: flat[i+j*N] = beta[i,j] = beta at theta=(xf[i],xf[j])
-// Canvas pixel (px=column=x_index=i, py=row=y_index=j)
-// => access beta1[px + py*N]
-function sersicOnBeta(cx,cy,Re,ns,ellip,pa_deg,I0){
+// Render at the beta-array resolution (N×N), returns Float32Array vals[i+j*N]
+// where i=x-index (0..N-1), j=y-index (0..N-1)
+// Beta stored F-order: flat[i+j*N] = beta[x_i, y_j]
+function sersicOnBeta(cx,cy,Re,ns,ellip,pa_deg){
   const N=PROFILES[activeIdx].n;
   const pa=pa_deg*Math.PI/180,cp=Math.cos(pa),sp=Math.sin(pa);
   const q=1-ellip,bnv=bn(ns),inv_n=1/ns,inv_Re=1/Re;
   const vals=new Float32Array(N*N);
   let vmax=0;
-  // j=py (y/row), i=px (x/col)
   for(let j=0;j<N;j++){
     for(let i=0;i<N;i++){
-      const bx=beta1[i+j*N];   // F-order: flat[i+j*N] = b1[i,j] = beta_x at (xf[i],xf[j]) ✓
-      const by=beta2[i+j*N];
+      const bx=beta1[i+j*N], by=beta2[i+j*N];
       const dx=(bx-cx)*cp+(by-cy)*sp;
       const dy=-(bx-cx)*sp+(by-cy)*cp;
       const r=Math.sqrt(dx*dx+(dy/q)*(dy/q));
-      const v=I0*Math.exp(-bnv*(Math.pow(r*inv_Re,inv_n)-1));
-      vals[i+j*N]=v;           // store at same (i,j) position
-      if(v>vmax)vmax=v;
-    }
-  }
-  return{vals,vmax};
-}
-
-// Source plane: uniform grid, same indexing
-function sersicDirect(cx,cy,Re,ns,ellip,pa_deg,I0){
-  const N=PROFILES[activeIdx].n,half=PROFILES[activeIdx].half;
-  const pa=pa_deg*Math.PI/180,cp=Math.cos(pa),sp=Math.sin(pa);
-  const q=1-ellip,bnv=bn(ns),inv_n=1/ns,inv_Re=1/Re;
-  const step=2*half/N;
-  const vals=new Float32Array(N*N);
-  let vmax=0;
-  for(let j=0;j<N;j++){
-    const by=-half+(j+.5)*step;   // j = y index
-    for(let i=0;i<N;i++){
-      const bx=-half+(i+.5)*step; // i = x index
-      const dx=(bx-cx)*cp+(by-cy)*sp;
-      const dy=-(bx-cx)*sp+(by-cy)*cp;
-      const r=Math.sqrt(dx*dx+(dy/q)*(dy/q));
-      const v=I0*Math.exp(-bnv*(Math.pow(r*inv_Re,inv_n)-1));
+      const v=Math.exp(-bnv*(Math.pow(r*inv_Re,inv_n)-1));
       vals[i+j*N]=v;
       if(v>vmax)vmax=v;
     }
@@ -298,18 +248,38 @@ function sersicDirect(cx,cy,Re,ns,ellip,pa_deg,I0){
   return{vals,vmax};
 }
 
-// Paint vals[i+j*N] (i=x col, j=y row) to canvas with y-flip and √-stretch
-// I0 controls absolute brightness: vmax_ref = reference at I0=1, we clamp at I0*vmax_ref
-function paintToCanvas(ctx,vals,vmax_ref,I0,N){
-  const idata=ctx.createImageData(N,N);
+function sersicDirect(cx,cy,Re,ns,ellip,pa_deg){
+  const N=PROFILES[activeIdx].n, half=PROFILES[activeIdx].half;
+  const pa=pa_deg*Math.PI/180,cp=Math.cos(pa),sp=Math.sin(pa);
+  const q=1-ellip,bnv=bn(ns),inv_n=1/ns,inv_Re=1/Re;
+  const step=2*half/N;
+  const vals=new Float32Array(N*N);
+  let vmax=0;
+  for(let j=0;j<N;j++){
+    const by=-half+(j+.5)*step;
+    for(let i=0;i<N;i++){
+      const bx=-half+(i+.5)*step;
+      const dx=(bx-cx)*cp+(by-cy)*sp;
+      const dy=-(bx-cx)*sp+(by-cy)*cp;
+      const r=Math.sqrt(dx*dx+(dy/q)*(dy/q));
+      const v=Math.exp(-bnv*(Math.pow(r*inv_Re,inv_n)-1));
+      vals[i+j*N]=v;
+      if(v>vmax)vmax=v;
+    }
+  }
+  return{vals,vmax};
+}
+
+// Paint N×N vals array (i=x, j=y, y-up convention) onto ctx (W×H canvas)
+// I0 scales brightness; vmax_ref is the reference max (at I0=1)
+function paintToCanvas(ctx, vals, N, W, H, vmax_ref, I0){
+  // We draw the N×N image scaled to W×H
+  const idata=new ImageData(N,N);
   const pix=idata.data;
-  // Absolute brightness: I0 scales pixel values. vmax_ref is max at I0=1.
-  // We use fixed reference so I0 actually changes brightness (not just rescaled).
   const inv=vmax_ref>1e-12?1/vmax_ref:0;
   for(let j=0;j<N;j++){
-    const row=N-1-j; // flip: j=0 (bottom in physics) -> row=N-1 (bottom of canvas)
+    const row=N-1-j; // flip y: j=0 (y_min, bottom) -> row=N-1 (bottom of canvas)
     for(let i=0;i<N;i++){
-      // vals stored at [i+j*N], paint to canvas pixel (col=i, row=N-1-j)
       const v=vals[i+j*N];
       const t=Math.min(1,Math.sqrt(Math.max(0,v*inv*I0)));
       const ci=Math.round(t*255);
@@ -319,7 +289,7 @@ function paintToCanvas(ctx,vals,vmax_ref,I0,N){
   }
   const off=new OffscreenCanvas(N,N);
   off.getContext('2d').putImageData(idata,0,0);
-  ctx.drawImage(off,0,0,SZ,SZ);
+  ctx.drawImage(off,0,0,W,H);
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -327,87 +297,84 @@ function render(){
   if(!beta1)return;
   const{cx,cy,Re,ns,ellip,pa,I0}=P;
   const N=PROFILES[activeIdx].n;
-  // Compute at I0=1 to get reference vmax, then I0 scales brightness in paint
-  const{vals:lv,vmax:vm1}=sersicOnBeta(cx,cy,Re,ns,ellip,pa,1.0);
-  const{vals:sv,vmax:vm2}=sersicDirect(cx,cy,Re,ns,ellip,pa,1.0);
+  const{vals:lv,vmax:vm1}=sersicOnBeta(cx,cy,Re,ns,ellip,pa);
+  const{vals:sv,vmax:vm2}=sersicDirect(cx,cy,Re,ns,ellip,pa);
   const vmax_ref=Math.max(vm1,vm2,1e-10);
-  paintToCanvas(ctxI,lv,vmax_ref,I0,N);
-  paintToCanvas(ctxS,sv,vmax_ref,I0,N);
+  paintToCanvas(ctxI,lv,N,cimg.width,cimg.height,vmax_ref,I0);
+  paintToCanvas(ctxS,sv,N,csrc.width,csrc.height,vmax_ref,I0);
   drawOverlays();
 }
 
 function schedRender(){if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(render);}
 
+// ── COORDINATE CONVERSION ────────────────────────────────────────────────────
+// All SVG/mouse coords are in CSS pixels = cinner pixel coords.
+// mpc2px: Mpc → CSS pixel position within cinner (matching canvas layout)
+// Canvas is W×H CSS pixels, covers [-half,+half] × [-half,+half] Mpc
+// x increases left→right, y increases bottom→top (physics), but canvas y increases top→bottom
+
+function mpc2px(x_mpc, y_mpc, W, H, half){
+  const px = (x_mpc + half) / (2*half) * W;
+  const py = H - (y_mpc + half) / (2*half) * H;  // flip y
+  return [px, py];
+}
+
+function px2mpc(px, py, W, H, half){
+  const x = px / W * 2*half - half;
+  const y = (H - py) / H * 2*half - half;
+  return [x, y];
+}
+
 // ── SVG OVERLAYS ──────────────────────────────────────────────────────────────
-// All SVG coordinates in cinner space (full container, not just canvas)
-function canvasToSVG(px_canvas, py_canvas){
-  // Canvas sits centered in cinner; offX/offY = canvas left/top within cinner
-  return[offX+px_canvas, offY+py_canvas];
+function circle(cx_m, cy_m, r_m, col, dash, W, H, half){
+  const[px,py]=mpc2px(cx_m,cy_m,W,H,half);
+  const rp=r_m/(2*half)*W;
+  return`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rp.toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.3" ${dash?`stroke-dasharray="${dash}"`:''}  opacity=".9"/>`;
 }
 
-function mpc2canvas(x,y,half){
-  // x,y in Mpc -> canvas pixel coords (before y-flip relative to top)
-  const px=(x+half)/(2*half)*SZ;
-  const py=SZ-(y+half)/(2*half)*SZ; // flip y
-  return[px,py];
-}
-
-function mpc2svg(x,y,half){
-  const[cpx,cpy]=mpc2canvas(x,y,half);
-  return canvasToSVG(cpx,cpy);
-}
-
-function fovRect(half){
-  // Rectangle showing the physical FOV boundary on the canvas
-  const[x0,y0]=canvasToSVG(0,0);
-  return`<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${SZ}" height="${SZ}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`;
-}
-
-function circle(cx_mpc,cy_mpc,r_mpc,col,dash=''){
-  const prof=PROFILES[activeIdx];
-  const[sx,sy]=mpc2svg(cx_mpc,cy_mpc,prof.half);
-  const rp=r_mpc/(2*prof.half)*SZ;
-  return`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${rp.toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.3" ${dash?`stroke-dasharray="${dash}"`:''}  opacity=".9"/>`;
-}
-
-function segs2path(segs,col){
-  const prof=PROFILES[activeIdx];
+function segs2path(segs, col, W, H, half){
   let out='';
   for(const seg of segs){
     if(!seg.x||seg.x.length<2)continue;
     let d='';
     for(let k=0;k<seg.x.length;k++){
-      const[sx,sy]=mpc2svg(seg.x[k],seg.y[k],prof.half);
-      d+=(k?'L':'M')+sx.toFixed(1)+' '+sy.toFixed(1)+' ';
+      const[px,py]=mpc2px(seg.x[k],seg.y[k],W,H,half);
+      d+=(k?'L':'M')+px.toFixed(1)+' '+py.toFixed(1)+' ';
     }
     out+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.4" opacity=".9"/>`;
   }
   return out;
 }
 
-function markerSVG(x_mpc,y_mpc,col,sz=8){
-  const prof=PROFILES[activeIdx];
-  const[sx,sy]=mpc2svg(x_mpc,y_mpc,prof.half);
-  return`<line x1="${sx-sz}" y1="${sy}" x2="${sx+sz}" y2="${sy}" stroke="${col}" stroke-width="2" opacity=".95"/>
-         <line x1="${sx}" y1="${sy-sz}" x2="${sx}" y2="${sy+sz}" stroke="${col}" stroke-width="2" opacity=".95"/>`;
+function markerSVG(x_m, y_m, col, W, H, half, sz=8){
+  const[px,py]=mpc2px(x_m,y_m,W,H,half);
+  return`<line x1="${px-sz}" y1="${py}" x2="${px+sz}" y2="${py}" stroke="${col}" stroke-width="2" opacity=".95"/>
+         <line x1="${px}" y1="${py-sz}" x2="${px}" y2="${py+sz}" stroke="${col}" stroke-width="2" opacity=".95"/>`;
+}
+
+function fovBorder(W,H){
+  // Subtle border marking the exact edge of the lensing FOV
+  return`<rect x="0.5" y="0.5" width="${W-1}" height="${H-1}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>`;
 }
 
 function drawOverlays(){
   const prof=PROFILES[activeIdx];
   const ov=overlays||{critical:[],caustic:[]};
-  const fov=fovRect(prof.half);
+  const WS=csrc.width, HS=csrc.height;
+  const WI=cimg.width,  HI=cimg.height;
+  const half=prof.half;
 
-  let si=fov,ii=fov;
+  let si=fovBorder(WS,HS), ii=fovBorder(WI,HI);
   if(P.showRs){
-    si+=circle(0,0,prof.r_s,'var(--rs)','4 3');
-    ii+=circle(0,0,prof.r_s,'var(--rs)','4 3');
+    si+=circle(0,0,prof.r_s,'var(--rs)','4 3',WS,HS,half);
+    ii+=circle(0,0,prof.r_s,'var(--rs)','4 3',WI,HI,half);
   }
-  if(P.showEinstein) ii+=circle(0,0,prof.r_E,'var(--einstein)');
-  if(P.showCrit)     ii+=segs2path(ov.critical,'var(--critical)');
-  if(P.showCaus)     si+=segs2path(ov.caustic,'var(--caustic)');
+  if(P.showEinstein) ii+=circle(0,0,prof.r_E,'var(--einstein)','',WI,HI,half);
+  if(P.showCrit)     ii+=segs2path(ov.critical,'var(--critical)',WI,HI,half);
+  if(P.showCaus)     si+=segs2path(ov.caustic,'var(--caustic)',WS,HS,half);
   if(P.showMark){
-    si+=markerSVG(P.cx,P.cy,'#ff6b6b');
-    ii+=markerSVG(P.cx,P.cy,'rgba(255,255,255,.9)');
+    si+=markerSVG(P.cx,P.cy,'#ff6b6b',WS,HS,half);
+    ii+=markerSVG(P.cx,P.cy,'rgba(255,255,255,.9)',WI,HI,half);
   }
   document.getElementById('svg-src').innerHTML=si;
   document.getElementById('svg-img').innerHTML=ii;
@@ -431,12 +398,9 @@ async function loadBin(url,onP){
 }
 
 const cache={};
-
 async function loadProfile(idx,showLoading=false){
   const prof=PROFILES[idx];
-  if(cache[prof.prefix]){
-    ({beta1,beta2,overlays}=cache[prof.prefix]); return;
-  }
+  if(cache[prof.prefix]){({beta1,beta2,overlays}=cache[prof.prefix]);return;}
   if(showLoading)document.getElementById('loading').style.display='flex';
   const base=prof.prefix+'_';
   setProgress(0,`Chargement ${prof.label}…`);
@@ -467,8 +431,7 @@ function buildProfileButtons(){
       activeIdx=+btn.dataset.idx;
       await loadProfile(activeIdx,true);
       updateInfo();
-      const t=document.getElementById('img-title');
-      t.childNodes[0].nodeValue=`Plan image (θ) — ${PROFILES[activeIdx].label} `;
+      document.getElementById('img-title').firstChild.nodeValue=`Plan image (θ) — ${PROFILES[activeIdx].label} `;
       document.getElementById('loading').style.display='none';
       loading=false;
       schedRender();
@@ -501,43 +464,40 @@ function setupSliders(){
     el.addEventListener('input',()=>{vel.textContent=fn(el.value);schedRender();});
   }
   document.getElementById('breset').addEventListener('click',()=>{
-    const defaults=[['sx',0],['sy',0],['sre',0.1],['sn',1.0],['se',0.3],['spa',30],['si0',1.0]];
-    defaults.forEach(([id,v])=>document.getElementById(id).value=v);
+    [['sx',0],['sy',0],['sre',0.1],['sn',1.0],['se',0.3],['spa',30],['si0',1.0]]
+      .forEach(([id,v])=>document.getElementById(id).value=v);
     P.cx=0;P.cy=0;P.Re=0.1;P.ns=1.0;P.ellip=0.3;P.pa=30;P.I0=1.0;
-    document.getElementById('vx').textContent='+0.000';
-    document.getElementById('vy').textContent='+0.000';
-    document.getElementById('vre').textContent='0.100';
-    document.getElementById('vn').textContent='1.0';
-    document.getElementById('ve').textContent='0.30';
-    document.getElementById('vpa').textContent='30°';
-    document.getElementById('vi0').textContent='1.00×';
+    ['vx','+0.000'],['vy','+0.000'],['vre','0.100'],['vn','1.0'],
+    ['ve','0.30'],['vpa','30°'],['vi0','1.00×']
+      .forEach(([id,v])=>document.getElementById(id).textContent=v);
     schedRender();
   });
 }
 
 // ── OVERLAYS ──────────────────────────────────────────────────────────────────
 function setupOverlays(){
-  const map=[['ov-einstein','showEinstein'],['ov-rs','showRs'],
-             ['ov-crit','showCrit'],['ov-caus','showCaus'],['ov-mark','showMark']];
-  for(const[id,key]of map){
+  [['ov-einstein','showEinstein'],['ov-rs','showRs'],
+   ['ov-crit','showCrit'],['ov-caus','showCaus'],['ov-mark','showMark']]
+  .forEach(([id,key])=>{
     const row=document.getElementById(id);
     row.addEventListener('click',()=>{P[key]=!P[key];row.classList.toggle('on',P[key]);drawOverlays();});
-  }
+  });
 }
 
 // ── DRAG ──────────────────────────────────────────────────────────────────────
-function canvasCoords(e){
-  const rect=csrc.getBoundingClientRect();
-  return[(e.clientX-rect.left)*(SZ/rect.width),(e.clientY-rect.top)*(SZ/rect.height)];
-}
-function px2mpc(px,py){
-  const half=PROFILES[activeIdx].half;
-  return[px/SZ*2*half-half, (SZ-py)/SZ*2*half-half];
+// Mouse coords from getBoundingClientRect are CSS pixels, same as canvas internal pixels.
+// This is DPR-independent and screen-independent.
+function eventToCanvasPx(e, canvas){
+  const rect=canvas.getBoundingClientRect();
+  // rect.width = CSS display width, canvas.width = internal resolution = same (we set it that way)
+  // So no scaling needed — 1:1 mapping
+  return[e.clientX - rect.left, e.clientY - rect.top];
 }
 
 function applyDrag(e){
-  const[px,py]=canvasCoords(e);
-  let[mx,my]=px2mpc(px,py);
+  const[px,py]=eventToCanvasPx(e, csrc);
+  const prof=PROFILES[activeIdx];
+  let[mx,my]=px2mpc(px,py,csrc.width,csrc.height,prof.half);
   mx=Math.max(-1.35,Math.min(1.35,mx));
   my=Math.max(-1.35,Math.min(1.35,my));
   P.cx=mx;P.cy=my;
@@ -554,8 +514,9 @@ function setupDrag(){
   window.addEventListener('mousemove',e=>{
     if(dragging){applyDrag(e);return;}
     if(e.target===csrc){
-      const[px,py]=canvasCoords(e);
-      const[mx,my]=px2mpc(px,py);
+      const[px,py]=eventToCanvasPx(e,csrc);
+      const prof=PROFILES[activeIdx];
+      const[mx,my]=px2mpc(px,py,csrc.width,csrc.height,prof.half);
       document.getElementById('coord-src').textContent=`β=(${mx.toFixed(3)}, ${my.toFixed(3)}) Mpc`;
     }
   });
@@ -564,12 +525,19 @@ function setupDrag(){
   window.addEventListener('touchmove',e=>{if(dragging){applyDrag(e.touches[0]);e.preventDefault();}},{passive:false});
   window.addEventListener('touchend',()=>{dragging=false;});
   cimg.addEventListener('mousemove',e=>{
-    const rect=cimg.getBoundingClientRect();
-    const px=(e.clientX-rect.left)*(SZ/rect.width),py=(e.clientY-rect.top)*(SZ/rect.height);
-    const[mx,my]=px2mpc(px,py);
+    const[px,py]=eventToCanvasPx(e,cimg);
+    const prof=PROFILES[activeIdx];
+    const[mx,my]=px2mpc(px,py,cimg.width,cimg.height,prof.half);
     document.getElementById('coord-img').textContent=`θ=(${mx.toFixed(3)}, ${my.toFixed(3)}) Mpc`;
   });
 }
+
+// ── RESIZE ────────────────────────────────────────────────────────────────────
+let resizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{setupSize();schedRender();},100);
+});
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
@@ -578,12 +546,9 @@ async function init(){
   setupSliders();
   setupOverlays();
   setupDrag();
-  // Also re-setup on resize
-  window.addEventListener('resize',()=>{setupSize();drawOverlays();});
   await loadProfile(0);
   updateInfo();
-  document.getElementById('img-title').childNodes[0].nodeValue=
-    `Plan image (θ) — ${PROFILES[0].label} `;
+  document.getElementById('img-title').firstChild.nodeValue=`Plan image (θ) — ${PROFILES[0].label} `;
   document.getElementById('loading').style.display='none';
   render();
 }
