@@ -183,20 +183,25 @@ const csrc=document.getElementById('csrc');
 const cimg=document.getElementById('cimg');
 const ctxS=csrc.getContext('2d');
 const ctxI=cimg.getContext('2d');
-let cW=1, cH=1; // actual cinner dimensions in CSS px, set in setupSize
+let cW=1, cH=1; // cinner size in CSS pixels (used for mouse mapping and SVG)
+let DPR=1;       // devicePixelRatio (canvas internal resolution multiplier)
 
 function setupSize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 3); // cap at 3× to avoid OOM
   const wS=document.getElementById('wrap-src');
   const wI=document.getElementById('wrap-img');
-  // getBoundingClientRect returns CSS pixels (DPR-independent for layout)
+  // getBoundingClientRect = CSS pixels (layout units, DPR-independent)
   const rS=wS.getBoundingClientRect();
   const rI=wI.getBoundingClientRect();
   cW=Math.round(rS.width);
   cH=Math.round(rS.height);
-  // Internal resolution = CSS size (so mouse CSS coords map 1:1 to canvas pixels)
-  csrc.width=cW; csrc.height=cH;
-  cimg.width=Math.round(rI.width); cimg.height=Math.round(rI.height);
-  // SVG viewBox matches cinner size exactly
+  // Canvas internal resolution = CSS size × DPR → uses all physical pixels on Retina
+  csrc.width =Math.round(rS.width  * DPR);
+  csrc.height=Math.round(rS.height * DPR);
+  cimg.width =Math.round(rI.width  * DPR);
+  cimg.height=Math.round(rI.height * DPR);
+  // CSS display size stays at 100%×100% (set in stylesheet), so browser scales up cleanly
+  // SVG viewBox stays in CSS pixels (SVG coords = mouse coords = CSS pixels)
   document.getElementById('svg-src').setAttribute('viewBox',`0 0 ${cW} ${cH}`);
   document.getElementById('svg-img').setAttribute('viewBox',`0 0 ${Math.round(rI.width)} ${Math.round(rI.height)}`);
 }
@@ -360,8 +365,11 @@ function fovBorder(W,H){
 function drawOverlays(){
   const prof=PROFILES[activeIdx];
   const ov=overlays||{critical:[],caustic:[]};
-  const WS=csrc.width, HS=csrc.height;
-  const WI=cimg.width,  HI=cimg.height;
+  // SVG coords are in CSS pixels (viewBox = CSS size)
+  // Canvas coords are in physical pixels (canvas.width = CSS * DPR)
+  // For overlays we use CSS pixels throughout (SVG-consistent)
+  const WS=csrc.width/DPR, HS=csrc.height/DPR;
+  const WI=cimg.width/DPR, HI=cimg.height/DPR;
   const half=prof.half;
 
   let si=fovBorder(WS,HS), ii=fovBorder(WI,HI);
@@ -485,13 +493,14 @@ function setupOverlays(){
 }
 
 // ── DRAG ──────────────────────────────────────────────────────────────────────
-// Mouse coords from getBoundingClientRect are CSS pixels, same as canvas internal pixels.
-// This is DPR-independent and screen-independent.
+// Mouse/touch coords are in CSS pixels. Canvas internal pixels = CSS px × DPR.
+// So: canvas_px = (clientX - rect.left) * DPR
 function eventToCanvasPx(e, canvas){
   const rect=canvas.getBoundingClientRect();
-  // rect.width = CSS display width, canvas.width = internal resolution = same (we set it that way)
-  // So no scaling needed — 1:1 mapping
-  return[e.clientX - rect.left, e.clientY - rect.top];
+  return[
+    (e.clientX - rect.left) * DPR,
+    (e.clientY - rect.top)  * DPR,
+  ];
 }
 
 function applyDrag(e){
