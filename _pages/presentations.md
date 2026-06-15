@@ -4,7 +4,7 @@ permalink: /presentations/
 layout: single
 author_profile: true
 ---
-## [GDR CoPhy - June 2026](/assets/files/gr_effects_in_lss_2026.pdf)
+## [General Relativistic effects in Large Scale Structures - June 2026](/assets/files/gr_effects_in_lss_2026.pdf)
 Presentation akin to the previous ones (GDR CoPhy, June 2026 & LSST France, May 2026), albeit with a slighter focus on theoretical aspects and comparison of _excalibur_ to other raytracing codes. Presented to the relativistic cosmology community in Aegina, Greece. 
 
 ## [GDR CoPhy - June 2026](/assets/files/gdr_cophy_2026.pdf)
