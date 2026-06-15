@@ -4,6 +4,8 @@ permalink: /presentations/
 layout: single
 author_profile: true
 ---
+## [GDR CoPhy - June 2026](/assets/files/gr_effects_in_lss_2026.pdf)
+Presentation akin to the previous ones (GDR CoPhy, June 2026 & LSST France, May 2026), albeit with a slighter focus on theoretical aspects and comparison of _excalibur_ to other raytracing codes. Presented to the relativistic cosmology community in Aegina, Greece. 
 
 ## [GDR CoPhy - June 2026](/assets/files/gdr_cophy_2026.pdf)
 Presentation akin to the previous one (LSST France, May 2026), with additional results on mass and concentration extraction biases obtained via mimicking current analysis hypothesis. Fitting spherical NFW profiles over known non spherical NFW lenses can lead to biases of about 30% on mass and concentration estimation. Presented to GDR CoPhy at LPCA.
