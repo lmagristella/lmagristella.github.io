@@ -228,6 +228,8 @@ const PROFILES = [
    r_E_mean:0,      r_E_a:0,      r_E_b:0,      r_s:0,      ba:1.0, ca:1.0, isVoid:true},
   {label:"Schwarzschild (masse ponctuelle)", prefix:"schwarzschild", n:1000, half:1.50,
    r_E_mean:0.35,   r_E_a:0.35,   r_E_b:0.35,   r_s:0,      ba:1.0, ca:1.0, isSchwarzschild:true},
+  {label:"Binaire (2 masses ponctuelles)",    prefix:"binary",        n:1000, half:1.50,
+   r_E_mean:0.3707, r_E_a:0.3707, r_E_b:0.3707, r_s:0,      ba:1.0, ca:1.0, isBinary:true, sep:0.45, rE_k:0.2621},
 ];
 
 let activeIdx=0, beta1=null, beta2=null, overlays=null;
@@ -486,6 +488,7 @@ function buildProfileButtons(){
     btn.dataset.idx=i;
     const sub = p.isVoid ? 'Sous-densité (κ<0)'
               : p.isSchwarzschild ? 'Masse ponctuelle'
+              : p.isBinary ? `sep=${p.sep} Mpc · 2×1.5×10¹⁴ M☉`
               : p.ba===1.0 ? 'Sphérique NFW'
               : `b/a=${p.ba} · c/a=${p.ca}`;
     btn.innerHTML=`${p.label}<span class="sub">${sub}</span>`;
@@ -515,6 +518,19 @@ function updateInfo(){
       `<div class="row"><span>z_l, z_s</span><span>1.0, 2.0</span></div>` +
       `<div class="row"><span>θ_E ≈</span><span>${p.r_E_mean.toFixed(3)} Mpc</span></div>` +
       `<div class="row"><span>Caustique</span><span>point (origine)</span></div>` +
+      `<div class="row"><span>Résolution</span><span>${p.n}²</span></div>`;
+    return;
+  }
+  if(p.isBinary){
+    document.getElementById('info-block').innerHTML =
+      `<b>${p.label}</b><br>` +
+      `<div class="row"><span>Type</span><span>2 masses ponctuelles</span></div>` +
+      `<div class="row"><span>z_l, z_s</span><span>1.0, 2.0</span></div>` +
+      `<div class="row"><span>M (chaque)</span><span>1.5×10¹⁴ M☉</span></div>` +
+      `<div class="row"><span>Séparation</span><span>${p.sep.toFixed(3)} Mpc</span></div>` +
+      `<div class="row"><span>θ_E (chaque)</span><span>${p.rE_k.toFixed(3)} Mpc</span></div>` +
+      `<div class="row"><span>θ_E (total)</span><span>${p.r_E_mean.toFixed(3)} Mpc</span></div>` +
+      `<div class="row"><span>Caustique</span><span>papillon (tangentielle)</span></div>` +
       `<div class="row"><span>Résolution</span><span>${p.n}²</span></div>`;
     return;
   }
