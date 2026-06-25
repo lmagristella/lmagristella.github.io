@@ -226,6 +226,8 @@ const PROFILES = [
    r_E_mean:0.2941, r_E_a:0.3512, r_E_b:0.2369, r_s:0.5675, ba:0.7, ca:0.4},
   {label:"Cosmic void",            prefix:"void",      n:1000, half:1.50,
    r_E_mean:0,      r_E_a:0,      r_E_b:0,      r_s:0,      ba:1.0, ca:1.0, isVoid:true},
+  {label:"Schwarzschild (masse ponctuelle)", prefix:"schwarzschild", n:1000, half:1.50,
+   r_E_mean:0.35,   r_E_a:0.35,   r_E_b:0.35,   r_s:0,      ba:1.0, ca:1.0, isSchwarzschild:true},
 ];
 
 let activeIdx=0, beta1=null, beta2=null, overlays=null;
@@ -483,6 +485,7 @@ function buildProfileButtons(){
     btn.className='prof-btn'+(i===0?' active':'');
     btn.dataset.idx=i;
     const sub = p.isVoid ? 'Sous-densité (κ<0)'
+              : p.isSchwarzschild ? 'Masse ponctuelle'
               : p.ba===1.0 ? 'Sphérique NFW'
               : `b/a=${p.ba} · c/a=${p.ca}`;
     btn.innerHTML=`${p.label}<span class="sub">${sub}</span>`;
@@ -505,6 +508,16 @@ function buildProfileButtons(){
 
 function updateInfo(){
   const p=PROFILES[activeIdx];
+  if(p.isSchwarzschild){
+    document.getElementById('info-block').innerHTML =
+      `<b>${p.label}</b><br>` +
+      `<div class="row"><span>Type</span><span>masse ponctuelle</span></div>` +
+      `<div class="row"><span>z_l, z_s</span><span>1.0, 2.0</span></div>` +
+      `<div class="row"><span>θ_E ≈</span><span>${p.r_E_mean.toFixed(3)} Mpc</span></div>` +
+      `<div class="row"><span>Caustique</span><span>point (origine)</span></div>` +
+      `<div class="row"><span>Résolution</span><span>${p.n}²</span></div>`;
+    return;
+  }
   if(p.isVoid){
     document.getElementById('info-block').innerHTML =
       `<b>${p.label}</b><br>` +
