@@ -28,7 +28,9 @@
 //     complete assembled grid:
 //     postMessage({id, status:'done', N, half, unit_label, beta1, beta2, overlays})
 // Both kinds report {id, status:'error', message} on failure.
-importScripts('excalibur_scene.js');
+// Inherit the cache-pairing stamp live.js was loaded with (see its ASSET_V).
+const ASSET_V = (self.location.search || '');
+importScripts('excalibur_scene.js' + ASSET_V);
 const modulePromise = ExcaliburScene();
 
 // live.js's LENS_TYPES uses plain integer `kind` values (0..5, matching

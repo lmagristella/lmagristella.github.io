@@ -17,6 +17,17 @@
 const COARSE = !!(window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
 const MOBILE_LAYOUT = () => window.matchMedia('(max-width:900px)').matches;
 
+// index.html loads this file as live.js?v=N. Reuse that stamp for everything
+// this file pulls in, so one deploy's markup can never end up driving another
+// deploy's script or workers: GitHub Pages serves all of these with the same
+// max-age, and a phone that had the page open before a deploy will happily
+// pair fresh HTML with a cached live.js. That is exactly what left the mobile
+// bottom-sheet button inert -- new markup with the button, old script with no
+// listener for it, and no error anywhere to show for it.
+const ASSET_V = (() => {
+  try { return new URL(document.currentScript.src).search || ''; } catch (e) { return ''; }
+})();
+
 // LensKind values MUST match excalibur-cpp/include/excalibur/scene/SceneDescription.hpp's enum exactly.
 const LENS_TYPES = [
   { kind: 0, name: 'PointMass', label: 'Point mass', costWeight: 1,
@@ -466,7 +477,7 @@ function drawOverlays() {
 // counts they cannot actually sustain, hence the tighter cap.
 const POOL_SIZE = Math.max(1, Math.min(navigator.hardwareConcurrency || 4, COARSE ? 4 : 16));
 const CHUNKS_PER_WORKER = 10;
-const pool = Array.from({ length: POOL_SIZE }, () => new Worker('live-worker.js'));
+const pool = Array.from({ length: POOL_SIZE }, () => new Worker('live-worker.js' + ASSET_V));
 let requestId = 0;
 let currentRequest = null;  // { id, mode, spec, N, queue[], chunksTotal, chunksDone, beta1, beta2, imgX, imgY }
 
