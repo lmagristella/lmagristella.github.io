@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07080f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>EXCALIBUR — Interactive Gravitational Lensing</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
@@ -16,7 +19,8 @@
   --rs:#42c8ff;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+@supports (height:100dvh){body{height:100dvh}}
 
 #loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:100}
 #loading h2{font-family:'Crimson Pro',serif;font-weight:300;font-size:22px;color:var(--accent);letter-spacing:.1em}
@@ -71,15 +75,116 @@ button.reset:hover{border-color:var(--accent);color:var(--accent)}
 .ccoord{color:var(--accent);font-size:9px;font-variant-numeric:tabular-nums}
 
 .cinner{position:relative;flex:1;overflow:hidden;background:#000}
-canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:crosshair;image-rendering:pixelated}
+canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:crosshair;image-rendering:pixelated;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 svg.ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 
 #hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);pointer-events:none;white-space:nowrap;opacity:.5;z-index:10}
+#hint .hint-short{display:none}
 
 footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);display:flex;justify-content:space-between;font-style:italic;flex-shrink:0;gap:16px}
 footer .legend{display:flex;gap:12px;align-items:center;font-style:normal}
 footer .legend span{display:flex;align-items:center;gap:4px}
 footer .legend .ddot{width:8px;height:8px;border-radius:50%}
+
+/* ============================ MOBILE / TOUCH ============================ */
+.mob-only{display:none}
+
+/* Bottom action bar (phones only) */
+#mbar{align-items:center;gap:9px;padding:8px 11px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
+      border-top:1px solid var(--border);background:var(--panel);flex-shrink:0;z-index:50}
+#mbar button{background:transparent;border:1px solid var(--border);color:var(--text);
+             font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.05em;
+             padding:9px 12px;cursor:pointer;white-space:nowrap}
+#mbar #mb-controls{border-color:var(--accent);color:var(--accent)}
+#mbar #mb-coord{flex:1;text-align:center;font-size:10px;color:var(--accent2);
+                font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Sheet chrome (inert on desktop) */
+#sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55;
+                opacity:0;pointer-events:none;transition:opacity .25s}
+#sheet-backdrop.on{opacity:1;pointer-events:auto}
+.sheet-hdr{display:none}
+
+@media (max-width:900px){
+  .mob-only{display:flex}
+  #sheet-backdrop{display:block}
+
+  header{padding:9px 13px 8px;gap:8px}
+  header h1{font-size:16px}
+  header h1 span{font-size:13px}
+  .hmeta{display:none}
+  footer{display:none}
+
+  /* Two planes stacked so both stay visible while dragging */
+  .canvases{flex-direction:column}
+  .cwrap{min-height:0}
+  .cwrap:first-child{border-right:none;border-bottom:1px solid var(--border)}
+  .ctitle{padding:5px 10px;font-size:9px;gap:8px}
+  .ccoord{font-size:8px}
+  #hint{font-size:9px;bottom:5px;opacity:.5}
+  #hint .hint-full{display:none}
+  #hint .hint-short{display:inline}
+
+  /* Sidebar becomes a bottom sheet */
+  .side{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;min-width:0;
+        max-height:64vh;z-index:60;border-right:none;border-top:1px solid var(--border);
+        border-radius:16px 16px 0 0;padding:0 15px 20px;
+        padding-bottom:calc(20px + env(safe-area-inset-bottom));gap:16px;
+        transform:translateY(102%);visibility:hidden;
+        transition:transform .26s cubic-bezier(.4,0,.2,1), visibility 0s linear .26s;
+        box-shadow:0 -20px 45px rgba(0,0,0,.6);overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch}
+  .side.open{transform:none;visibility:visible;
+             transition:transform .26s cubic-bezier(.4,0,.2,1), visibility 0s}
+  @supports (max-height:64dvh){.side{max-height:64dvh}}
+
+  .sheet-hdr{display:flex;align-items:center;justify-content:space-between;
+             position:sticky;top:0;background:var(--panel);z-index:2;
+             margin:0 -15px -4px;padding:14px 15px 10px;
+             border-bottom:1px solid var(--border)}
+  .sheet-hdr::before{content:'';position:absolute;top:5px;left:50%;transform:translateX(-50%);
+                     width:38px;height:3px;border-radius:2px;background:var(--border)}
+  .sheet-hdr .ttl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .sheet-hdr button{background:transparent;border:1px solid var(--border);color:var(--muted);
+                    font-family:'Space Mono',monospace;font-size:13px;line-height:1;
+                    padding:8px 12px;cursor:pointer}
+}
+
+/* Phone landscape: keep the planes side by side, height is the scarce axis */
+@media (max-width:900px) and (orientation:landscape){
+  .canvases{flex-direction:row}
+  .cwrap:first-child{border-right:1px solid var(--border);border-bottom:none}
+  header{padding:5px 12px 4px}
+  header h1{font-size:14px}
+  .ctitle{padding:3px 9px}
+  #mbar{padding:5px 10px;padding-bottom:calc(5px + env(safe-area-inset-bottom))}
+  #mbar button{padding:7px 11px}
+  .side{max-height:92vh}
+  @supports (max-height:92dvh){.side{max-height:92dvh}}
+}
+
+/* Finger-sized targets on any touch device */
+@media (pointer:coarse){
+  input[type=range]{height:30px;background:transparent}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--border);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-10.5px;
+                                          border-radius:50%;background:var(--accent);border:none;
+                                          box-shadow:0 0 0 1px rgba(0,0,0,.6)}
+  input[type=range]::-moz-range-track{height:3px;background:var(--border);border-radius:2px}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border:none}
+  .sl-row{margin-bottom:14px}
+  .sl-lbl,.sl-val{font-size:12px}
+  .sl-val{min-width:62px}
+  .prof-btn{padding:11px 11px;font-size:11px}
+  .prof-btn .sub{font-size:10px;margin-top:3px}
+  .ov-row{padding:8px 0;margin-bottom:0}
+  .ov-dot{width:13px;height:13px}
+  .ov-row span{font-size:12px}
+  .ov-sublabel{font-size:10px;margin:10px 0 2px}
+  .sec-lbl{font-size:10px;margin-bottom:9px}
+  button.reset{padding:14px;font-size:12px}
+  .info{font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -95,8 +200,15 @@ footer .legend .ddot{width:8px;height:8px;border-radius:50%}
   <div class="hmeta">NFW lens · z_l = 1.0 · z_s = 2.0 · M₂₀₀ = 2×10¹⁵ M☉ · c = 7</div>
 </header>
 
+<div id="sheet-backdrop"></div>
+
 <div class="layout">
-<div class="side">
+<div class="side" id="side">
+
+  <div class="sheet-hdr">
+    <span class="ttl">Contrôles</span>
+    <button id="sheet-close" aria-label="Fermer">✕</button>
+  </div>
 
   <div>
     <div class="sec-lbl">Lens profile</div>
@@ -200,8 +312,14 @@ footer .legend .ddot{width:8px;height:8px;border-radius:50%}
       <svg class="ov" id="svg-img"></svg>
     </div>
   </div>
-  <div id="hint">Drag sur le plan source · La source touchant une caustique = multiplication d'images</div>
+  <div id="hint"><span class="hint-full">Drag sur le plan source · La source touchant une caustique = multiplication d'images</span><span class="hint-short">Glissez le doigt sur le plan source</span></div>
 </div>
+</div>
+
+<div id="mbar" class="mob-only">
+  <button id="mb-controls">☰ Contrôles</button>
+  <div id="mb-coord">β=(0.000, 0.000)</div>
+  <button id="mb-reset" aria-label="Reset">↺</button>
 </div>
 
 <footer>
@@ -234,6 +352,17 @@ const PROFILES = [
 
 let activeIdx=0, beta1=null, beta2=null, overlays=null;
 let loading=false, dragging=false, rafId=null;
+
+// Touch devices: render a decimated grid while the user is actively dragging a
+// slider or the source marker, then snap back to full resolution once idle.
+// A 1000² Sérsic evaluation per frame is fine on a laptop, not on a phone.
+const COARSE = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+const MOBILE_LAYOUT = () => window.matchMedia('(max-width:900px)').matches;
+let interacting=false, idleTimer=null;
+function fastStride(){
+  if(!COARSE) return 1;
+  return PROFILES[activeIdx].n > 800 ? 3 : 2;
+}
 const P={cx:0,cy:0,Re:0.1,ns:1.0,ellip:0.3,pa:30,I0:1.0,
          showCritTan:true, showCritRad:false,
          showCaustTan:false, showCaustRad:false,
@@ -293,46 +422,67 @@ const MLUT=(()=>{
 
 function bn(n){return 2*n-1/3+4/(405*n)+46/(25515*n*n)}
 
-function sersicOnBeta(cx,cy,Re,ns,ellip,pa_deg){
+function sersicOnBeta(cx,cy,Re,ns,ellip,pa_deg,stride){
   const N=PROFILES[activeIdx].n;
+  const st=stride||1, M=Math.ceil(N/st);
   const pa=pa_deg*Math.PI/180,cp=Math.cos(pa),sp=Math.sin(pa);
   const q=1-ellip,bnv=bn(ns),inv_n=1/ns,inv_Re=1/Re;
-  const vals=new Float32Array(N*N);
+  const vals=new Float32Array(M*M);
   let vmax=0;
-  for(let j=0;j<N;j++){
-    for(let i=0;i<N;i++){
+  for(let jj=0;jj<M;jj++){
+    const j=Math.min(jj*st,N-1);
+    for(let ii=0;ii<M;ii++){
+      const i=Math.min(ii*st,N-1);
       const bx=beta1[i+j*N], by=beta2[i+j*N];
       const dx=(bx-cx)*cp+(by-cy)*sp;
       const dy=-(bx-cx)*sp+(by-cy)*cp;
       const r=Math.sqrt(dx*dx+(dy/q)*(dy/q));
       const v=Math.exp(-bnv*(Math.pow(r*inv_Re,inv_n)-1));
-      vals[i+j*N]=v;
+      vals[ii+jj*M]=v;
       if(v>vmax)vmax=v;
     }
   }
-  return{vals,vmax};
+  return{vals,vmax,n:M};
 }
 
-function sersicDirect(cx,cy,Re,ns,ellip,pa_deg){
+function sersicDirect(cx,cy,Re,ns,ellip,pa_deg,stride){
   const N=PROFILES[activeIdx].n, half=PROFILES[activeIdx].half;
+  const st=stride||1, M=Math.ceil(N/st);
   const pa=pa_deg*Math.PI/180,cp=Math.cos(pa),sp=Math.sin(pa);
   const q=1-ellip,bnv=bn(ns),inv_n=1/ns,inv_Re=1/Re;
   const step=2*half/N;
-  const vals=new Float32Array(N*N);
+  const vals=new Float32Array(M*M);
   let vmax=0;
-  for(let j=0;j<N;j++){
+  for(let jj=0;jj<M;jj++){
+    const j=Math.min(jj*st,N-1);
     const by=-half+(j+.5)*step;
-    for(let i=0;i<N;i++){
+    for(let ii=0;ii<M;ii++){
+      const i=Math.min(ii*st,N-1);
       const bx=-half+(i+.5)*step;
       const dx=(bx-cx)*cp+(by-cy)*sp;
       const dy=-(bx-cx)*sp+(by-cy)*cp;
       const r=Math.sqrt(dx*dx+(dy/q)*(dy/q));
       const v=Math.exp(-bnv*(Math.pow(r*inv_Re,inv_n)-1));
-      vals[i+j*N]=v;
+      vals[ii+jj*M]=v;
       if(v>vmax)vmax=v;
     }
   }
-  return{vals,vmax};
+  return{vals,vmax,n:M};
+}
+
+// Reusable offscreen tile + ImageData, keyed by size. Reallocating a 1000x1000
+// canvas on every frame is a real cost on phones.
+const _tiles={};
+function getTile(N){
+  let t=_tiles[N];
+  if(!t){
+    const c = (typeof OffscreenCanvas!=='undefined')
+      ? new OffscreenCanvas(N,N)
+      : Object.assign(document.createElement('canvas'),{width:N,height:N});
+    t={canvas:c, ctx:c.getContext('2d'), idata:new ImageData(N,N)};
+    _tiles[N]=t;
+  }
+  return t;
 }
 
 function paintToCanvas(ctx, vals, N, SZ, offX, offY, vmax_ref, I0){
@@ -340,7 +490,8 @@ function paintToCanvas(ctx, vals, N, SZ, offX, offY, vmax_ref, I0){
   // Clear (black bands outside square)
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, W, H);
-  const idata=new ImageData(N,N);
+  const tile=getTile(N);
+  const idata=tile.idata;
   const pix=idata.data;
   const inv=vmax_ref>1e-12?1/vmax_ref:0;
   for(let j=0;j<N;j++){
@@ -353,24 +504,39 @@ function paintToCanvas(ctx, vals, N, SZ, offX, offY, vmax_ref, I0){
       pix[b]=MLUT[ci*4];pix[b+1]=MLUT[ci*4+1];pix[b+2]=MLUT[ci*4+2];pix[b+3]=255;
     }
   }
-  const off=new OffscreenCanvas(N,N);
-  off.getContext('2d').putImageData(idata,0,0);
-  ctx.drawImage(off, offX, offY, SZ, SZ);
+  tile.ctx.putImageData(idata,0,0);
+  ctx.drawImage(tile.canvas, offX, offY, SZ, SZ);
 }
 
-function render(){
+function render(stride){
   if(!beta1)return;
+  const st=stride||1;
   const{cx,cy,Re,ns,ellip,pa,I0}=P;
-  const N=PROFILES[activeIdx].n;
-  const{vals:lv,vmax:vm1}=sersicOnBeta(cx,cy,Re,ns,ellip,pa);
-  const{vals:sv,vmax:vm2}=sersicDirect(cx,cy,Re,ns,ellip,pa);
+  const{vals:lv,vmax:vm1,n:nImg}=sersicOnBeta(cx,cy,Re,ns,ellip,pa,st);
+  const{vals:sv,vmax:vm2,n:nSrc}=sersicDirect(cx,cy,Re,ns,ellip,pa,st);
   const vmax_ref=Math.max(vm1,vm2,1e-10);
-  paintToCanvas(ctxI, lv, N, SZ_img, offI_x, offI_y, vmax_ref, I0);
-  paintToCanvas(ctxS, sv, N, SZ_src, offS_x, offS_y, vmax_ref, I0);
+  paintToCanvas(ctxI, lv, nImg, SZ_img, offI_x, offI_y, vmax_ref, I0);
+  paintToCanvas(ctxS, sv, nSrc, SZ_src, offS_x, offS_y, vmax_ref, I0);
   drawOverlays();
 }
 
-function schedRender(){if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(render);}
+function schedRender(){
+  if(rafId)cancelAnimationFrame(rafId);
+  rafId=requestAnimationFrame(()=>render(interacting?fastStride():1));
+}
+
+// Called from every continuous control (sliders, drag): draw coarse now, then a
+// full-resolution pass once the gesture has been idle for a moment.
+function schedInteract(){
+  interacting=true;
+  clearTimeout(idleTimer);
+  idleTimer=setTimeout(()=>{interacting=false;schedRender();},180);
+  schedRender();
+}
+function endInteract(){
+  clearTimeout(idleTimer);
+  if(interacting){interacting=false;schedRender();}
+}
 
 // Map physics coords to SVG pixels. SVG viewBox is in CSS pixels (W_css × H_css).
 // The square render area inside is SZ_css × SZ_css, centered at offset (offX_css, offY_css).
@@ -463,10 +629,29 @@ async function loadBin(url,onP){
   return new Float32Array(buf.buffer);
 }
 
+// Each profile holds two Float32 deflection maps (up to 2x4 MB). Keeping all
+// eight resident is fine on a desktop and gets the tab killed on a phone.
 const cache={};
+const cacheOrder=[];
+const MAX_CACHED = COARSE ? 2 : 8;
+function rememberProfile(prefix,entry){
+  cache[prefix]=entry;
+  const k=cacheOrder.indexOf(prefix);
+  if(k>=0)cacheOrder.splice(k,1);
+  cacheOrder.push(prefix);
+  while(cacheOrder.length>MAX_CACHED){
+    const drop=cacheOrder.shift();
+    if(drop!==prefix)delete cache[drop];
+  }
+}
+
 async function loadProfile(idx,showLoading=false){
   const prof=PROFILES[idx];
-  if(cache[prof.prefix]){({beta1,beta2,overlays}=cache[prof.prefix]);return;}
+  if(cache[prof.prefix]){
+    ({beta1,beta2,overlays}=cache[prof.prefix]);
+    rememberProfile(prof.prefix,cache[prof.prefix]);
+    return;
+  }
   if(showLoading)document.getElementById('loading').style.display='flex';
   const base=prof.prefix+'_';
   setProgress(0,`Chargement ${prof.label}…`);
@@ -475,7 +660,7 @@ async function loadProfile(idx,showLoading=false){
   setProgress(.92,'Overlays…');
   let ov={};
   try{const r=await fetch(base+'overlays.json?v=4');ov=await r.json();}catch(e){}
-  cache[prof.prefix]={beta1:b1,beta2:b2,overlays:ov};
+  rememberProfile(prof.prefix,{beta1:b1,beta2:b2,overlays:ov});
   beta1=b1;beta2=b2;overlays=ov;
   setProgress(1,'Prêt');
 }
@@ -503,6 +688,7 @@ function buildProfileButtons(){
       document.getElementById('img-title').firstChild.nodeValue=`Plan image (θ) — ${PROFILES[activeIdx].label} `;
       document.getElementById('loading').style.display='none';
       loading=false;
+      closeSheetOnMobile();
       schedRender();
     });
     grid.appendChild(btn);
@@ -573,7 +759,8 @@ function setupSliders(){
   ];
   for(const[id,vid,fn]of sl){
     const el=document.getElementById(id),vel=document.getElementById(vid);
-    el.addEventListener('input',()=>{vel.textContent=fn(el.value);schedRender();});
+    el.addEventListener('input',()=>{vel.textContent=fn(el.value);schedInteract();});
+    ['change','pointerup','touchend'].forEach(ev=>el.addEventListener(ev,endInteract));
   }
   document.getElementById('breset').addEventListener('click',()=>{
     [['sx',0],['sy',0],['sre',0.1],['sn',1.0],['se',0.3],['spa',30],['si0',1.0]]
@@ -582,6 +769,7 @@ function setupSliders(){
     [['vx','+0.000'],['vy','+0.000'],['vre','0.100'],['vn','1.0'],
      ['ve','0.30'],['vpa','30°'],['vi0','1.00×']]
       .forEach(([id,v])=>document.getElementById(id).textContent=v);
+    setSrcCoordText(0,0);
     schedRender();
   });
 }
@@ -602,6 +790,15 @@ function eventToCanvasCssPx(e, canvas){
   return[e.clientX - rect.left, e.clientY - rect.top];
 }
 
+// Source-plane coordinates are shown in the canvas title on desktop and in the
+// bottom bar on phones (where the title is too cramped to read at a glance).
+function setSrcCoordText(mx,my){
+  const t=`β=(${mx.toFixed(3)}, ${my.toFixed(3)})`;
+  document.getElementById('coord-src').textContent=t+' Mpc';
+  const mb=document.getElementById('mb-coord');
+  if(mb) mb.textContent=t;
+}
+
 function applyDrag(e){
   const[px,py]=eventToCanvasCssPx(e, csrc);
   const prof=PROFILES[activeIdx];
@@ -615,8 +812,8 @@ function applyDrag(e){
   document.getElementById('sy').value=my;
   document.getElementById('vx').textContent=fmt(mx);
   document.getElementById('vy').textContent=fmt(my);
-  document.getElementById('coord-src').textContent=`β=(${mx.toFixed(3)}, ${my.toFixed(3)}) Mpc`;
-  schedRender();
+  setSrcCoordText(mx,my);
+  schedInteract();
 }
 
 function setupDrag(){
@@ -628,13 +825,40 @@ function setupDrag(){
       const prof=PROFILES[activeIdx];
       const SS = SZ_src/DPR, oSx = offS_x/DPR, oSy = offS_y/DPR;
       const[mx,my]=px2mpc(px,py,SS,oSx,oSy,prof.half);
-      document.getElementById('coord-src').textContent=`β=(${mx.toFixed(3)}, ${my.toFixed(3)}) Mpc`;
+      setSrcCoordText(mx,my);
     }
   });
-  window.addEventListener('mouseup',()=>{dragging=false;});
-  csrc.addEventListener('touchstart',e=>{dragging=true;applyDrag(e.touches[0]);e.preventDefault();},{passive:false});
-  window.addEventListener('touchmove',e=>{if(dragging){applyDrag(e.touches[0]);e.preventDefault();}},{passive:false});
-  window.addEventListener('touchend',()=>{dragging=false;});
+  window.addEventListener('mouseup',()=>{if(dragging){dragging=false;endInteract();}});
+
+  // Touch: follow one finger only, and ignore the gesture entirely while the
+  // control sheet is open over the canvas.
+  let touchId=null;
+  const findTouch=list=>{
+    for(let i=0;i<list.length;i++) if(list[i].identifier===touchId) return list[i];
+    return null;
+  };
+  csrc.addEventListener('touchstart',e=>{
+    if(dragging||!e.changedTouches.length)return;
+    touchId=e.changedTouches[0].identifier;
+    dragging=true;
+    applyDrag(e.changedTouches[0]);
+    e.preventDefault();
+  },{passive:false});
+  window.addEventListener('touchmove',e=>{
+    if(!dragging)return;
+    const t=findTouch(e.touches);
+    if(!t)return;
+    applyDrag(t);
+    e.preventDefault();
+  },{passive:false});
+  const touchEnd=e=>{
+    if(!dragging)return;
+    if(e && e.changedTouches && !findTouch(e.changedTouches))return;
+    dragging=false;touchId=null;endInteract();
+  };
+  window.addEventListener('touchend',touchEnd);
+  window.addEventListener('touchcancel',touchEnd);
+
   cimg.addEventListener('mousemove',e=>{
     const[px,py]=eventToCanvasCssPx(e,cimg);
     const prof=PROFILES[activeIdx];
@@ -642,6 +866,26 @@ function setupDrag(){
     const[mx,my]=px2mpc(px,py,SI,oIx,oIy,prof.half);
     document.getElementById('coord-img').textContent=`θ=(${mx.toFixed(3)}, ${my.toFixed(3)}) Mpc`;
   });
+}
+
+// ---- Bottom sheet (phones): the sidebar slides up over the canvases ----
+function sheetOpen(v){
+  const side=document.getElementById('side');
+  const bd=document.getElementById('sheet-backdrop');
+  side.classList.toggle('open',v);
+  bd.classList.toggle('on',v);
+  if(v) side.scrollTop=0;
+}
+function isSheetOpen(){return document.getElementById('side').classList.contains('open');}
+function closeSheetOnMobile(){if(MOBILE_LAYOUT())sheetOpen(false);}
+
+function setupSheet(){
+  document.getElementById('mb-controls').addEventListener('click',()=>sheetOpen(!isSheetOpen()));
+  document.getElementById('sheet-close').addEventListener('click',()=>sheetOpen(false));
+  document.getElementById('sheet-backdrop').addEventListener('click',()=>sheetOpen(false));
+  document.getElementById('mb-reset').addEventListener('click',()=>document.getElementById('breset').click());
+  // Leaving the phone layout must not strand the sidebar in "open" state
+  window.matchMedia('(max-width:900px)').addEventListener?.('change',ev=>{if(!ev.matches)sheetOpen(false);});
 }
 
 // Keyboard shortcuts
@@ -652,13 +896,18 @@ document.addEventListener('keydown',(e)=>{
   if(e.key==='y') document.getElementById('ov-crit-rad').click();
   if(e.key==='c') document.getElementById('ov-caust-tan').click();
   if(e.key==='v') document.getElementById('ov-caust-rad').click();
+  if(e.key==='Escape') sheetOpen(false);
 });
 
 let resizeTimer=null;
-window.addEventListener('resize',()=>{
+function onViewportChange(){
   clearTimeout(resizeTimer);
-  resizeTimer=setTimeout(()=>{setupSize();schedRender();},100);
-});
+  resizeTimer=setTimeout(()=>{setupSize();schedRender();},120);
+}
+window.addEventListener('resize',onViewportChange);
+// Phones: rotation and the collapsing address bar both change the usable box
+window.addEventListener('orientationchange',onViewportChange);
+if(window.visualViewport) window.visualViewport.addEventListener('resize',onViewportChange);
 
 async function init(){
   setupSize();
@@ -666,6 +915,7 @@ async function init(){
   setupSliders();
   setupOverlays();
   setupDrag();
+  setupSheet();
   await loadProfile(0);
   updateInfo();
   document.getElementById('img-title').firstChild.nodeValue=`Plan image (θ) — ${PROFILES[0].label} `;
