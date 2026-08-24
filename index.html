@@ -1,62 +1,74 @@
 ---
 layout: splash
 title: "Laurent Magri-Stella"
-header:
-  overlay_color: "#6a0dad"
-  overlay_filter: "0.2"
-  overlay_image: /assets/images/Astronomy.png
+classes: wide science-home-page
 excerpt: "Ph.D. student at LAPP - Numerical Cosmology & Relativity"
 ---
 
-<!-- ===== HERO SECTION WITH PHOTO ===== -->
-<section style="position: relative; text-align: center; color: white; padding: 6rem 0;">
-  <!-- Container for name + photo -->
-  <div style="
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 3rem;
-      flex-wrap: wrap;
-      z-index: 2;
-      position: relative;">
-    
-    <!-- Text content -->
-    <div style="text-align: left; max-width: 600px;">
-      <!--<h1 style="margin-bottom: 0.5rem; font-size: 2.5rem;">Welcome to my website ! :)</h1>-->
-      <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">
-        This website is intended to be a personal research journal, as well as a way of presenting who I am both as a person and as a scientist. Welcome ! :)
+<div class="science-home">
+  <section class="science-hero">
+    <div>
+      <span class="science-hero__eyebrow">Personal research journal</span>
+      <h1>Laurent Magri-Stella</h1>
+      <p class="science-hero__lede">
+        I'm a PhD student in numerical relativistic cosmology at LAPP. My thesis consists in computing null geodesics (the path followed by light) in the Universe.
+        You can read more about that in other sections of this website. In the mean time, 
+        thank you for visiting and welcome on my personal page :)
       </p>
-      <div>
-        <a class="btn btn--primary" href="/research/">See my research topics</a>
-        <a class="btn btn--inverse" href="/assets/files/CV_Magri-Stella_Laurent.pdf">My CV</a>
+      <div class="science-hero__actions">
+        <a class="btn btn--primary" href="/research/">Explore research</a>
+        <a class="btn btn--inverse" href="/assets/files/CV_Magri-Stella_Laurent.pdf">Download CV</a>
       </div>
     </div>
 
-    <!-- Profile photo -->
-    <div>
-      <img src="/assets/images/Magri-StellaLaurent_n.jpg"
-           alt="Photo"
-           style="width: 300px; height: 400px; border-radius: 50%; object-fit: cover;
-                  box-shadow: 0 0 15px rgba(0,0,0,0.5);">
+    <div class="science-hero__portrait">
+      <img src="/assets/images/Magri-StellaLaurent_n.jpg" alt="Portrait of Laurent Magri-Stella">
     </div>
-  </div>
+  </section>
 
-  <!-- Overlayed background (for readability) -->
-  <div style="
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.3);
-      z-index: 1;">
-  </div>
-</section>
+  <section class="home-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-label">Journal</span>
+        <h2>What I've been up to lately</h2>
+      </div>
+      <a class="section-link" href="/journal/">Read all entries →</a>
+    </div>
 
-<!-- ===== INTRO SECTION ===== -->
+    {% if site.posts.size > 0 %}
+    <ul class="journal-preview">
+      {% for post in site.posts limit:3 %}
+        <li>
+          <span class="journal-date">{{ post.date | date: "%d %b %Y" }}</span>
+          <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+          {% if post.excerpt %}
+          <p>{{ post.excerpt | strip_html | truncatewords: 28 }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="page-intro">Nothing here yet. I'm just getting the journal started, so check back soon.</p>
+    {% endif %}
+  </section>
 
-<!--
-<section style="max-width: 800px; margin: 0 auto; padding: 2rem; text-align: center;">
-  <p style="font-size: 1.1rem;">
-    
-  </p>
-</section>
--->
+  <section class="home-about">
+    <span class="section-label">About</span>
+    <h2>Outside of science</h2>
+    <p>
+      When I'm not actively pulling my hair out on my code or analysing my simulations, 
+      I'm either on a judo mat, over a chessboard, or running a tabletop RPG for my friends.
+      I'm also invested in teaching and outreach, I think one of the scientist's missions is to
+      share the sparkle to people ! 
+    </p>
+    <ul class="home-links">
+      <li><a href="/about-me/">More about me</a></li>
+      <li><a href="/research/">Research</a></li>
+      <li><a href="/publications/">Publications</a></li>
+      <li><a href="/presentations/">Presentations</a></li>
+      <li><a href="/education/">Education</a></li>
+      <li><a href="/random-science/">Random science</a></li>
+    </ul>
+  </section>
+</div>
 

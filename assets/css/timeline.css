@@ -2,7 +2,7 @@
   position: relative;
   margin: 2em 0;
   padding-left: 30px;
-  border-left: 4px solid #6a0dad; /* ligne verticale violette */
+  border-left: 4px solid var(--site-accent-strong, #8b5cf6);
 }
 
 .timeline .entry {
@@ -18,9 +18,9 @@
   width: 25px;
   height: 25px;
   font-size: 14px;
-  background-color: white;
-  color: #6a0dad;
-  border: 2px solid #6a0dad;
+  background-color: var(--site-accent-deep, #6d28d9);
+  color: #f4f0fb;
+  border: 2px solid var(--site-accent-strong, #8b5cf6);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -28,21 +28,22 @@
 }
 
 .timeline .content {
-  background-color: #f3e9fc; /* violet très clair */
-  color: #6a0dad; /* texte violet foncé */
-  padding: 0.5em 1em;
-  border-radius: 8px;
-  box-shadow: 0 0 5px rgba(106, 13, 173, 0.1);
+  background: linear-gradient(180deg, rgba(36, 28, 61, 0.92), rgba(29, 23, 50, 0.92));
+  color: var(--site-ink, #f1ecff);
+  padding: 0.9em 1.2em;
+  border-radius: 20px;
+  border: 1px solid var(--site-border, rgba(167, 139, 250, 0.18));
+  box-shadow: var(--site-shadow, 0 24px 60px rgba(6, 3, 14, 0.55));
 }
 
 .timeline .content h3,
 .timeline .content p {
-  color: #6a0dad; /* harmonisation des titres et paragraphes */
+  color: var(--site-ink, #f1ecff);
   margin: 0.3em 0;
 }
 
 .timeline .date {
   font-weight: bold;
-  color: #6a0dad;
+  color: var(--site-highlight, #f0abfc);
   margin-bottom: 0.3em;
 }

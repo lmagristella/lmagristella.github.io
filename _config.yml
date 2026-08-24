@@ -15,6 +15,7 @@
 # in the templates via {{ site.myvariable }}.
 title: Laurent Magri-Stella
 email: laurent.magri-stella@lapp.in2p3.fr
+url: https://lmagristella.github.io
 description: >- # this means to ignore newlines until "baseurl:"
   PhD student in numerical cosmology
 twitter_username: username
@@ -58,7 +59,7 @@ plugins:
 author:
   name   : "Laurent Magri-Stella"
   avatar : "/assets/images/Magri-StellaLaurent_n.jpg"
-  bio    : "PhD student in numerical cosmology, working on general relativistic cosmological simulations."
+  bio    : "PhD student in numerical cosmology and general relativity."
   links:
     - label: "E-mail"
       icon: "fas fa-fw fa-envelope"
@@ -78,15 +79,18 @@ author:
 
 footer:
   links:
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/"
+    - label: "E-mail"
+      icon: "fas fa-fw fa-envelope"
+      url: "mailto:laurent.magri-stella@lapp.in2p3.fr"
+    - label: "ORCID"
+      icon: "fab fa-fw fa-orcid"
+      url: "https://orcid.org/0009-0007-2285-9413"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/laurent-magri-stella-963395244"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/"
+      url: "https://github.com/lmagristella"
 
 defaults:
   # _posts

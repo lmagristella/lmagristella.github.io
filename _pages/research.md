@@ -2,17 +2,70 @@
 title: "Research"
 permalink: /research/
 layout: single
+classes: wide science-page
 ---
 
-My work and interests are related to cosmology, mainly theoretical and numerical. I had the chance of exploring many different subjects within cosmology during my education. In this section, I will present what I am currently doing, and what I had the chance to do in other projects. 
+<section class="research-panel">
+	<span class="section-label">Overview</span>
+	<h2>Relativistic cosmology with an eye on observables</h2>
+	<p class="research-intro">
+		My work is in theoretical and numerical cosmology. Over the years I've looked at a few different ways
+		relativity shapes what we actually observe: light propagation, weak lensing, peculiar velocities.
+		This page gathers the main threads, past and present.
+	</p>
+</section>
 
-## Ongoing PhD thesis
-This project sits on top of a master internship I did right before starting my PhD, you can find the report [right there](/assets/files/rapport_stage_Laurent.pdf) for more details. 
-I am currently working on ***excalibur*** which stands for ***Ex**act **Ca**lculation of **Li**ght **B**ending **U**sing **R**elativity*. This code, for which I am the main contributor and author, intends to propagate light rays through any given cosmological grid, using a first order perturbed FLRW spacetime metric. The idea being to generate a lightcone, so to say, the sky seen by an observer at any given position in the given cosmological grid. By doing so, we hope to precisely quantify the errors on the measurements of various cosmological quantities that can be attributed to relativistic effects. 
+<section class="research-panel">
+	<span class="section-label">Current project</span>
+	<h2>PhD thesis: EXCALIBUR</h2>
+	<p>
+		This project picks up where a master's internship left off, right before my PhD started. You can read that
+		internship report <a href="/assets/files/rapport_stage_Laurent.pdf">here</a>.
+	</p>
+	<p>
+		These days I'm building <strong>EXCALIBUR</strong> (<em>Exact Calculation of Light Bending Using Relativity</em>),
+		which is the main thing I work on. It propagates light rays through cosmological grids using a first-order
+		perturbed FLRW metric, with the goal of reconstructing the sky the way an observer would actually see it in a
+		simulation.
+	</p>
+	<p>
+		The goal is to quantify how much relativistic effects bias the cosmological quantities we measure. Surveys are
+		getting precise enough now that the usual approximations might not hold up.
+	</p>
+	<ul class="key-points">
+		<li>Ray tracing in perturbed FLRW spacetime</li>
+		<li>Numerical lightcone construction</li>
+		<li>Lensing and relativistic systematics</li>
+	</ul>
+</section>
 
-## Other projects
-# Measuring the second order gravitational flexion terms of weak lensing signal in cosmological simulations 
-This project intended to use Horizon-AGN, a cosmological hydrodynamical simulation, to measure a specific higher order term that arises in the Taylor expansion of the lens equation in weak gravitational lensing. This additional measurement could allow for more precise constraints on halo shapes and mass measurements. You can read more about this internship [here](/assets/files/flexion_report.pdf) 
-
-# Fisher forecasting for galaxies' peculiar velocities surveys
-I spent a month working at CPPM in Marseille to translate a C++ code by Cullan Howlett in Python, for easier modularity and for a friendlier user experience. We managed to get back the same results as the C++ version and got the code to be easier to use than its alternative, although it did run a bit slower (surprised?).
+<section class="research-panel">
+	<span class="section-label">Previous projects</span>
+	<h2>Selected research experiences</h2>
+	<ul class="compact-list">
+		<li>
+			<strong>Weak gravitational flexion in cosmological simulations</strong>
+			<p>
+				Using the Horizon-AGN simulation, I measured second-order "flexion" terms in the weak-lensing regime, to
+				see whether these subtler distortions could sharpen our constraints on halo shapes and masses.
+				<a href="/assets/files/flexion_report.pdf">Read the internship report</a>.
+			</p>
+		</li>
+		<li>
+			<strong>Fisher forecasts for peculiar-velocity surveys</strong>
+			<p>
+				At CPPM in Marseille, I ported a C++ forecasting code by Cullan Howlett to Python, mainly to make it
+				easier to tinker with and share. It reproduced the original results, and hopefully makes life easier
+				for whoever uses it next.
+			</p>
+		</li>
+		<li>
+			<strong>Light propagation in inhomogeneous spacetimes</strong>
+			<p>
+				Even earlier, I worked on light propagation in Lemaitre-Tolman-Bondi spacetimes and perturbed FLRW
+				geodesics. That project is what got me hooked on building relativistic tools for cases where our usual
+				homogeneous intuition stops working.
+			</p>
+		</li>
+	</ul>
+</section>

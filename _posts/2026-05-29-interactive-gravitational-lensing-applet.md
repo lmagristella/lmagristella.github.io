@@ -58,3 +58,5 @@ Laurent MAGRI-STELLA
 <a href="/assets/excalibur_lensing_webapp/" class="btn btn--primary btn--large" target="_blank">
   ▶ Ouvrir l'applet interactive
 </a>
+
+**Update:** there's now a second, live version of this tool — instead of picking between precomputed lens shapes, you compose your own scene (any mix of lenses, or a Schwarzschild black hole) and EXCALIBUR ray-traces it *in your browser*, on the spot, via WebAssembly. See [the live composer post]({% post_url 2026-08-15-live-gravitational-lensing-composer %}) for details.

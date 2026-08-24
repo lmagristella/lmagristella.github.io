@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXCALIBUR — Live Lensing Composer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
+:root {
+  --bg:#07080f; --panel:#0d0f1a; --border:#1e2235;
+  --accent:#c8a96e; --accent2:#6ec8c8; --text:#d4d8e8; --muted:#4a5070;
+  --crit-tan:#42ff8c;  /* tangential critical = Einstein ring */
+  --crit-rad:#f5e642;  /* radial critical */
+  --caust-tan:#ff8c42; /* tangential caustic */
+  --caust-rad:#ff42d8; /* radial caustic */
+  --danger:#ff6b6b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:100}
+#loading h2{font-family:'Crimson Pro',serif;font-weight:300;font-size:22px;color:var(--accent);letter-spacing:.1em}
+#pbar{width:260px;height:2px;background:var(--border)}
+#pfill{height:100%;background:var(--accent);width:0%;transition:width .15s}
+#pmsg{color:var(--muted);font-size:10px}
+
+header{padding:11px 20px 9px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;flex-shrink:0}
+header h1{font-family:'Crimson Pro',serif;font-weight:300;font-size:21px;letter-spacing:.08em;color:var(--accent)}
+header h1 span{color:var(--text)}
+.hmeta{font-size:10px;color:var(--muted)}
+.hmeta a{color:var(--accent2)}
+
+.layout{display:flex;flex:1;overflow:hidden;min-height:0}
+
+.side{width:300px;min-width:280px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:14px;gap:15px;flex-shrink:0}
+.sec-lbl{font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;border-bottom:1px solid var(--border);padding-bottom:3px}
+
+.mode-grid{display:flex;gap:4px}
+.mode-btn{flex:1;padding:8px 6px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.03em;cursor:pointer;transition:all .15s;text-align:center;line-height:1.4}
+.mode-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07)}
+
+.lens-card{border:1px solid var(--border);padding:8px;margin-bottom:8px;position:relative}
+.lens-card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.lens-card-type{font-size:10px;color:var(--accent2);letter-spacing:.03em}
+.lens-rm{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px}
+.lens-rm:hover{color:var(--danger)}
+
+.add-lens{display:flex;gap:4px;margin-top:4px}
+.add-lens select{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:9px;padding:6px}
+.add-lens button{background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Space Mono',monospace;font-size:9px;padding:6px 10px;cursor:pointer}
+.add-lens button:hover{background:rgba(200,169,110,.1)}
+
+.sl-row{display:flex;flex-direction:column;gap:4px;margin-bottom:9px}
+.sl-hdr{display:flex;justify-content:space-between;align-items:center}
+.sl-lbl{color:var(--text);font-size:10px}
+.sl-val{font-size:10px;color:var(--accent);min-width:55px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--border);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer;border:none}
+
+.ov-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;cursor:pointer;user-select:none}
+.ov-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;opacity:.25;transition:opacity .15s;border:1px solid transparent}
+.ov-row.on .ov-dot{opacity:1}
+.ov-row span{font-size:10px;color:var(--muted);transition:color .15s}
+.ov-row.on span{color:var(--text)}
+.ov-grp{display:flex;flex-direction:column;gap:2px}
+.ov-sublabel{font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin:6px 0 3px}
+
+.info{font-size:9px;color:var(--muted);line-height:1.7}
+.info b{color:var(--text)}
+.info .row{display:flex;justify-content:space-between;gap:8px}
+.info .row span:last-child{color:var(--accent2);font-variant-numeric:tabular-nums}
+.info .note{color:var(--muted);font-style:italic;margin-top:6px;line-height:1.6}
+
+button.reset{width:100%;padding:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer;transition:all .15s;text-transform:uppercase}
+button.reset:hover{border-color:var(--accent);color:var(--accent)}
+
+.canvases{flex:1;display:flex;overflow:hidden;min-width:0;position:relative}
+.cwrap{flex:1;display:flex;flex-direction:column;min-width:0}
+.cwrap:first-child{border-right:1px solid var(--border)}
+.ctitle{padding:6px 12px;font-size:10px;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--panel);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:12px}
+.ccoord{color:var(--accent);font-size:9px;font-variant-numeric:tabular-nums}
+
+.cinner{position:relative;flex:1;overflow:hidden;background:#000}
+canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:crosshair;image-rendering:pixelated}
+svg.ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+
+#hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--accent2);pointer-events:none;white-space:nowrap;opacity:.75;z-index:10;background:rgba(13,15,26,.7);padding:2px 8px}
+
+footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);display:flex;justify-content:space-between;font-style:italic;flex-shrink:0;gap:16px}
+footer .legend{display:flex;gap:12px;align-items:center;font-style:normal}
+footer .legend span{display:flex;align-items:center;gap:4px}
+footer .legend .ddot{width:8px;height:8px;border-radius:50%}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <h2>EXCALIBUR</h2>
+  <div id="pbar"><div id="pfill"></div></div>
+  <div id="pmsg">Loading WASM module…</div>
+</div>
+
+<header>
+  <h1>EXCALIBUR <span>· Live Lensing Composer</span></h1>
+  <div class="hmeta">every frame ray-traced live in your browser (WebAssembly) · <a href="/assets/excalibur_lensing_webapp/">← curated gallery (precomputed, cosmological)</a></div>
+</header>
+
+<div class="layout">
+<div class="side">
+
+  <div>
+    <div class="sec-lbl">Metric</div>
+    <div class="mode-grid">
+      <button class="mode-btn active" id="mode-weak">Multi-lens<br>(weak field)</button>
+      <button class="mode-btn" id="mode-bh">Black hole<br>(Schwarzschild)</button>
+    </div>
+  </div>
+
+  <div id="weak-panel">
+    <div class="sec-lbl">Lenses</div>
+    <div id="lens-list"></div>
+    <div class="add-lens">
+      <select id="add-lens-type"></select>
+      <button id="add-lens-btn">+ Add</button>
+    </div>
+  </div>
+
+  <div id="bh-panel" style="display:none">
+    <div class="sec-lbl">Black hole</div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">Mass</span><span class="sl-val" id="v-bhmass">4.0×10⁶ M☉</span></div>
+      <input type="range" id="s-bhmass" min="0.5" max="50" step="0.1" value="4.0">
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">x offset [r_s]</span><span class="sl-val" id="v-bhx">+0.0</span></div>
+      <input type="range" id="s-bhx" min="-14" max="14" step="0.1" value="0">
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">y offset [r_s]</span><span class="sl-val" id="v-bhy">+0.0</span></div>
+      <input type="range" id="s-bhy" min="-14" max="14" step="0.1" value="0">
+    </div>
+  </div>
+
+  <div>
+    <div class="sec-lbl">Source position</div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">x</span><span class="sl-val" id="vx">+0.000</span></div>
+      <input type="range" id="sx" min="-3.5" max="3.5" step="0.001" value="0">
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">y</span><span class="sl-val" id="vy">+0.000</span></div>
+      <input type="range" id="sy" min="-3.5" max="3.5" step="0.001" value="0">
+    </div>
+  </div>
+
+  <div>
+    <div class="sec-lbl">Source profile</div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">R_e</span><span class="sl-val" id="vre">0.100</span></div>
+      <input type="range" id="sre" min="0.01" max="0.6" step="0.001" value="0.1">
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">Sérsic n</span><span class="sl-val" id="vn">1.0</span></div>
+      <input type="range" id="sn" min="0.5" max="6.0" step="0.1" value="1.0">
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">Ellipticity</span><span class="sl-val" id="ve">0.30</span></div>
+      <input type="range" id="se" min="0" max="0.85" step="0.01" value="0.3">
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">PA [°]</span><span class="sl-val" id="vpa">30°</span></div>
+      <input type="range" id="spa" min="0" max="180" step="1" value="30">
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">Brightness I₀</span><span class="sl-val" id="vi0">1.00×</span></div>
+      <input type="range" id="si0" min="0.1" max="3.0" step="0.01" value="1.0">
+    </div>
+    <div class="sl-row" id="sdls-row">
+      <div class="sl-hdr"><span class="sl-lbl">Distance [Mpc]</span><span class="sl-val" id="vdls">300</span></div>
+      <input type="range" id="sdls" min="30" max="1500" step="1" value="300">
+      <div class="ov-sublabel">How far past the lens, along the line of sight — closer (small) = weaker lensing, farther (large) = stronger. 300 = the traced default.</div>
+    </div>
+  </div>
+
+  <div id="field-panel">
+    <div class="sec-lbl">Background field</div>
+    <div class="ov-sublabel">A scatter of extra sources, each its own distance</div>
+    <div class="ov-grp">
+      <div class="ov-row" id="ov-field"><div class="ov-dot" style="background:#9cf"></div><span>Enable field</span></div>
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">Count</span><span class="sl-val" id="vfcount">24</span></div>
+      <input type="range" id="sfcount" min="1" max="80" step="1" value="24">
+    </div>
+    <div class="ov-sublabel">Each new field member's own distance is picked randomly somewhere between the two values below — not a literal "nearest object" and "farthest object", a range to draw from:</div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">Range: near end [Mpc]</span><span class="sl-val" id="vfdmin">120</span></div>
+      <input type="range" id="sfdmin" min="30" max="1500" step="1" value="120">
+    </div>
+    <div class="sl-row">
+      <div class="sl-hdr"><span class="sl-lbl">Range: far end [Mpc]</span><span class="sl-val" id="vfdmax">900</span></div>
+      <input type="range" id="sfdmax" min="30" max="1500" step="1" value="900">
+    </div>
+    <button class="reset" id="bfregen" style="margin-top:6px">⟲ New random field</button>
+  </div>
+
+  <div>
+    <div class="sec-lbl">Overlays</div>
+    <div class="ov-sublabel">Image plane — critical curves</div>
+    <div class="ov-grp">
+      <div class="ov-row on" id="ov-crit-tan"><div class="ov-dot" style="background:var(--crit-tan)"></div><span>Tangential (ring)</span></div>
+      <div class="ov-row" id="ov-crit-rad"><div class="ov-dot" style="background:var(--crit-rad)"></div><span>Radial</span></div>
+    </div>
+    <div class="ov-sublabel">Source plane — caustics</div>
+    <div class="ov-grp">
+      <div class="ov-row" id="ov-caust-tan"><div class="ov-dot" style="background:var(--caust-tan)"></div><span>Tangential</span></div>
+      <div class="ov-row" id="ov-caust-rad"><div class="ov-dot" style="background:var(--caust-rad)"></div><span>Radial</span></div>
+    </div>
+    <div class="ov-sublabel">Markers</div>
+    <div class="ov-grp">
+      <div class="ov-row on" id="ov-mark"><div class="ov-dot" style="background:#fff"></div><span>Source marker</span></div>
+    </div>
+  </div>
+
+  <button class="reset" id="breset">↺ Reset</button>
+
+  <div class="info" id="info-block">–</div>
+
+</div>
+
+<div class="canvases">
+  <div class="cwrap">
+    <div class="ctitle">Source plane (β) <span class="ccoord" id="coord-src"></span></div>
+    <div class="cinner" id="wrap-src">
+      <canvas id="csrc"></canvas>
+      <svg class="ov" id="svg-src"></svg>
+    </div>
+  </div>
+  <div class="cwrap">
+    <div class="ctitle" id="img-title">Image plane (θ) <span class="ccoord" id="coord-img"></span></div>
+    <div class="cinner" id="wrap-img">
+      <canvas id="cimg"></canvas>
+      <svg class="ov" id="svg-img"></svg>
+    </div>
+  </div>
+  <div id="hint">Drag on the source plane · grid size adapts to lens cost (shown below)</div>
+</div>
+</div>
+
+<footer>
+  <span>EXCALIBUR · Laurent Magri-Stella · live WASM composer</span>
+  <span class="legend">
+    <span><span class="ddot" style="background:var(--crit-tan)"></span>tan.</span>
+    <span><span class="ddot" style="background:var(--crit-rad)"></span>rad.</span>
+  </span>
+</footer>
+
+<script src="live.js"></script>
+</body>
+</html>

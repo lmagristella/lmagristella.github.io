@@ -3,30 +3,85 @@ permalink: /about-me/
 title: "About me"
 layout: single
 author_profile: true
+classes: wide science-page
 ---
-I'm **Laurent Magri-Stella**, a PhD student in **computational cosmology** and **numerical relativity**, currently based at **LAPP** in **Annecy, France**.
+<section class="page-panel">
+	<span class="section-label">Profile</span>
+	<h2>Who I am</h2>
+	<p class="page-intro">
+		I'm Laurent Magri-Stella, a PhD student in computational cosmology and numerical relativity at LAPP, in Annecy,
+		France. Most of my work sits between theory, code, and simulation, trying to understand how light travels
+		through a Universe that isn't perfectly smooth.
+	</p>
+</section>
 
-## Background
+<section class="page-panel">
+	<span class="section-label">Current work</span>
+	<h2>Scientific focus today</h2>
+	<p>
+		Right now I'm building C++ and Python versions of a tool that simulate how light rays travel and deform, and what that means for
+		gravitational lensing statistics. Longer term, I want to connect these models to methods that infer
+		cluster shape and mass from what we actually observe.
+	</p>
+</section>
 
-I hold two Master’s degrees in theoretical physics, one with a heavy focus on relativity and cosmology, and the other with a slightly larger focus on Quantum Field Theory and Particle Physics. My academic path has included internships and research projects related to:
+<section class="page-panel">
+	<span class="section-label">Background</span>
+	<h2>Academic trajectory</h2>
+	<p>
+		I hold two master's degrees in theoretical physics, one focused on relativity and cosmology, the other leaning
+		more toward quantum field theory and particle physics. A few internships and research projects along the way:
+	</p>
+	<ul class="compact-list">
+		<li>
+			<strong>Geodesics in perturbed FLRW spacetimes</strong>
+			<span>Theoretical and numerical study of light propagation in realistic cosmological settings.</span>
+		</li>
+		<li>
+			<strong>Weak gravitational flexion in simulations</strong>
+			<span>Higher-order lensing observables and halo-shape constraints.</span>
+		</li>
+		<li>
+			<strong>Peculiar galaxy velocities</strong>
+			<span>Forecasting methods and numerical work oriented towards cosmological surveys.</span>
+		</li>
+		<li>
+			<strong>Light propagation in Lemaitre-Tolman-Bondi spacetimes</strong>
+			<span>Relativistic effects in inhomogeneous cosmological models.</span>
+		</li>
 
-- Study and analysis of peculiar galaxy velocities
-- Study of light propagation in Lemaitre-Tolman-Bondi spacetimes
-- Numerical study of weak gravitational flexion in cosmological simulations
-- Theoretical and numerical study of geodesics in perturbed FLRW spacetimes
+	</ul>
+</section>
 
-I'm currently building tools in C++ and Python to simulate geodesic deformation and gravitational lensing statistics, with plans to implement reversal strategies for cluster shape and mass inference in the future.
+<section class="page-panel">
+	<span class="section-label">Interests</span>
+	<h2>Beyond core research</h2>
+	<div class="mini-grid">
+		<article class="mini-card">
+			<h3>Science communication</h3>
+			<p>Explaining physics ideas without flattening them is tricky stuff, but very important.</p>
+		</article>
+		<article class="mini-card">
+			<h3>Teaching</h3>
+			<p>I've taught since my first year as a physics undergrad. It's shaped how I explain my own research just as much as it shaped my students.</p>
+		</article>
+		<article class="mini-card">
+			<h3>Storytelling</h3>
+			<p>Tabletop RPGs and narrative design have been a hobby of mine for years. They probably influence how I talk about physics more than I'd like to admit.</p>
+		</article>
+		<article class="mini-card">
+			<h3>Discipline and play</h3>
+			<p>Judo and chess, mostly. Equal parts stress relief and a constant reminder that patience beats brute force.</p>
+		</article>
+	</div>
+</section>
 
-## Interests
-
-Besides my research in cosmology, I’m interested in:
-
-- Science communication and outreach
-- Teaching, and have done so since the beginning of my bachelor in physics
-- Role-playing games and storytelling 
-- Sports (I practiced judo from age 6 to 20) and I'm also a big chess nerd.
-
-## Goals
-
-As far as my interests go, I obviously aim to contribute to the global understanding we have of our Universe. 
-However, my main hope is to be able to spark interest and passion in young students, as former teachers and mentors have done for me. Physics is a beautiful field to spend a life on, and I feel the need to give back the passion I've received!
+<section class="page-panel">
+	<span class="section-label">Motivation</span>
+	<h2>Why this work matters to me</h2>
+	<p>
+		I want to help us understand the Universe a bit better, and I want to pass on the excitement I feel about
+		physics to people just starting out. Teachers and mentors did that for me. This website is my small attempt
+		at the same thing.
+	</p>
+</section>

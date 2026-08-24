@@ -3,10 +3,18 @@ title: "Education"
 permalink: /education/
 layout: single
 author_profile: true
-classes: wide
+classes: wide science-page
 ---
 
 <link rel="stylesheet" href="/assets/css/timeline.css">
+
+<section class="page-panel">
+  <span class="section-label">Education</span>
+  <h2>Academic timeline</h2>
+  <p class="timeline-intro">
+    From a master's in theoretical physics to a PhD in numerical cosmology, here's the path that got me here.
+  </p>
+</section>
 
 <div class="timeline">
 
@@ -15,7 +23,7 @@ classes: wide
     <div class="content">
       <span class="date">2025– Today</span>
       <h3>PhD in numerical cosmology - LAPP, Annecy, France</h3>
-      <p>Development of EXCALIBUR (EXact CAlculation of LIght Bending Using Relativity). This numerical tool will allow for the generation of relativistic light paths in cosmological simulations, assuming a perturbed Friedmann-Lemaitre-Robertson-Walker metric. The study of other spacetimes (such as Szekeres' spacetime) is also considered to be part of future extensions to EXCALIBUR. </p>
+      <p>Building EXCALIBUR (EXact CAlculation of LIght Bending Using Relativity), a tool for generating relativistic light paths in cosmological simulations, assuming a perturbed Friedmann-Lemaitre-Robertson-Walker metric. I'd like to extend it to other spacetimes eventually, like Szekeres'.</p>
     </div>
   </div>
 
@@ -24,7 +32,7 @@ classes: wide
     <div class="content">
       <span class="date">March – August 2025</span>
       <h3>Master Internship– LAPP, Annecy</h3>
-      <p>Studying photons as tracers of the curvature of spacetime and the mass distribution throughout the Universe. </p>
+      <p>Studying how photons trace the curvature of spacetime and the mass scattered across the Universe.</p>
     </div>
   </div>
 
@@ -42,7 +50,7 @@ classes: wide
     <div class="content">
       <span class="date">March – August 2024</span>
       <h3>Master Internship – LAM, Marseille</h3>
-      <p>Cosmic Bananas - Studying weak gravitational flexion in Horizon-AGN hydrodynamical cosmological simulation.</p>
+      <p>"Cosmic Bananas": studying weak gravitational flexion in the Horizon-AGN hydrodynamical cosmological simulation.</p>
     </div>
   </div>
 
@@ -60,7 +68,7 @@ classes: wide
     <div class="content">
       <span class="date">June – July 2023</span>
       <h3>Master Internship – CPT, Marseille</h3>
-      <p>Study of the propagation of light in Lemaitre-Tolman-Bondi spacetimes.</p>
+      <p>Studying how light propagates in Lemaitre-Tolman-Bondi spacetimes. My first real project in relativity.</p>
     </div>
   </div>
 
