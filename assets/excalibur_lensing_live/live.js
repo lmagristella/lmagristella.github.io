@@ -11,6 +11,12 @@
 // were specific to the fixed 8-profile precomputed gallery and have no
 // equivalent here (see buildLensList()/composeScene() below instead).
 
+// Phones: a coarse pointer drives both the touch affordances and the compute
+// budget below (pool size, target grid), since these are the same devices with
+// the least CPU and the tightest memory ceiling.
+const COARSE = !!(window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+const MOBILE_LAYOUT = () => window.matchMedia('(max-width:900px)').matches;
+
 // LensKind values MUST match excalibur-cpp/include/excalibur/scene/SceneDescription.hpp's enum exactly.
 const LENS_TYPES = [
   { kind: 0, name: 'PointMass', label: 'Point mass', costWeight: 1,
@@ -59,12 +65,17 @@ const BH_D_L_RS = 60, BH_D_LS_RS = 60, BH_HALF_FOV_RS = 20.0;
 // not precision-tuned, just a starting heuristic.
 function pickGridSize(lenses) {
   const weight = lenses.reduce((s, l) => s + lensTypeByKind(l.kind).costWeight, 0);
-  if (weight <= 2) return 320;
-  if (weight <= 6) return 200;
-  if (weight <= 15) return 140;
-  return 100;
+  let n;
+  if (weight <= 2) n = 320;
+  else if (weight <= 6) n = 200;
+  else if (weight <= 15) n = 140;
+  else n = 100;
+  // A phone has a fraction of the cores and a much tighter thermal budget, so
+  // the top rung is lowered rather than left permanently out of reach -- the
+  // ladder would otherwise stall short of its target on every edit.
+  return COARSE ? Math.round(n * 0.625) : n;
 }
-const BH_N = 320;  // single-BH scenes don't stack cost, so this can match the cheap-lens weak-field target
+const BH_N = COARSE ? 200 : 320;  // single-BH scenes don't stack cost, so this can match the cheap-lens weak-field target
 
 let nextLensId = 1;
 let lensList = [{ id: nextLensId++, kind: 2, x_mpc: 0, y_mpc: 0, z_mpc: 0,
@@ -450,7 +461,10 @@ function drawOverlays() {
 // finishes its last one, so a worker lucky enough to draw only cheap rows
 // just processes more of them. Wall-clock time tracks (total work / worker
 // count) much more closely than a static split would.
-const POOL_SIZE = Math.max(1, Math.min(navigator.hardwareConcurrency || 4, 16));
+// Each worker instantiates its own copy of the WASM module, so the pool is a
+// memory cost as much as a parallelism win. Phones report big.LITTLE core
+// counts they cannot actually sustain, hence the tighter cap.
+const POOL_SIZE = Math.max(1, Math.min(navigator.hardwareConcurrency || 4, COARSE ? 4 : 16));
 const CHUNKS_PER_WORKER = 10;
 const pool = Array.from({ length: POOL_SIZE }, () => new Worker('live-worker.js'));
 let requestId = 0;
@@ -627,14 +641,19 @@ function scheduleLiveRecompute() {
 
 function updateLiveStatus() {
   const el = document.getElementById('hint');
+  // No room for the prose on a phone; the resolution/progress readout is the
+  // part that actually carries information while the pool works.
+  const lead = MOBILE_LAYOUT() ? '' : 'Drag on the source plane · ';
   if (currentRequest) {
     const target = currentRequest.ladder[currentRequest.ladder.length - 1];
     const pct = currentRequest.chunksTotal ? Math.round(100 * currentRequest.chunksDone / currentRequest.chunksTotal) : 0;
-    const refining = currentRequest.N < target ? ` → refining to ${target}×${target}` : '';
-    el.textContent = `Drag on the source plane · ${currentRequest.N}×${currentRequest.N}${refining} (${pct}%)`;
+    const refining = currentRequest.N < target
+      ? (MOBILE_LAYOUT() ? ` → ${target}` : ` → refining to ${target}×${target}`)
+      : '';
+    el.textContent = `${lead}${currentRequest.N}×${currentRequest.N}${refining} (${pct}%)`;
   } else {
     const N = SCENE.N || (metricMode === 'weak_field' ? pickGridSize(lensList) : BH_N);
-    el.textContent = `Drag on the source plane · ${N}×${N}`;
+    el.textContent = `${lead}${N}×${N}`;
   }
 }
 
@@ -854,6 +873,15 @@ function eventToCanvasCssPx(e, canvas) {
   const rect = canvas.getBoundingClientRect();
   return [e.clientX - rect.left, e.clientY - rect.top];
 }
+// Source coordinates read from the canvas title on desktop and from the bottom
+// bar on phones, where the title is too cramped to scan at a glance.
+function setSrcCoordText(mx, my) {
+  const t = `β=(${mx.toFixed(3)}, ${my.toFixed(3)})`;
+  document.getElementById('coord-src').textContent = `${t} ${SCENE.unit_label}`;
+  const mb = document.getElementById('mb-coord');
+  if (mb) mb.textContent = t;
+}
+
 function applyDrag(e) {
   const [px, py] = eventToCanvasCssPx(e, csrc);
   const SS = SZ_src/DPR, oSx = offS_x/DPR, oSy = offS_y/DPR;
@@ -864,7 +892,7 @@ function applyDrag(e) {
   P.cx = mx; P.cy = my;
   document.getElementById('sx').value = mx; document.getElementById('sy').value = my;
   document.getElementById('vx').textContent = fmt(mx); document.getElementById('vy').textContent = fmt(my);
-  document.getElementById('coord-src').textContent = `β=(${mx.toFixed(3)}, ${my.toFixed(3)}) ${SCENE.unit_label}`;
+  setSrcCoordText(mx, my);
   schedRender();
 }
 function setupDrag() {
@@ -875,13 +903,39 @@ function setupDrag() {
       const [px, py] = eventToCanvasCssPx(e, csrc);
       const SS = SZ_src/DPR, oSx = offS_x/DPR, oSy = offS_y/DPR;
       const [mx, my] = px2mpc(px, py, SS, oSx, oSy, SCENE.half);
-      document.getElementById('coord-src').textContent = `β=(${mx.toFixed(3)}, ${my.toFixed(3)}) ${SCENE.unit_label}`;
+      setSrcCoordText(mx, my);
     }
   });
   window.addEventListener('mouseup', () => { dragging = false; });
-  csrc.addEventListener('touchstart', e => { dragging = true; applyDrag(e.touches[0]); e.preventDefault(); }, { passive: false });
-  window.addEventListener('touchmove', e => { if (dragging) { applyDrag(e.touches[0]); e.preventDefault(); } }, { passive: false });
-  window.addEventListener('touchend', () => { dragging = false; });
+
+  // Follow one finger only: reading touches[0] unconditionally let any second
+  // finger anywhere on screen hijack the source marker mid-drag.
+  let touchId = null;
+  const findTouch = (list) => {
+    for (let i = 0; i < list.length; i++) if (list[i].identifier === touchId) return list[i];
+    return null;
+  };
+  csrc.addEventListener('touchstart', e => {
+    if (dragging || !e.changedTouches.length) return;
+    touchId = e.changedTouches[0].identifier;
+    dragging = true;
+    applyDrag(e.changedTouches[0]);
+    e.preventDefault();
+  }, { passive: false });
+  window.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = findTouch(e.touches);
+    if (!t) return;
+    applyDrag(t);
+    e.preventDefault();
+  }, { passive: false });
+  const touchEnd = (e) => {
+    if (!dragging) return;
+    if (e && e.changedTouches && !findTouch(e.changedTouches)) return;
+    dragging = false; touchId = null;
+  };
+  window.addEventListener('touchend', touchEnd);
+  window.addEventListener('touchcancel', touchEnd);
   cimg.addEventListener('mousemove', e => {
     const [px, py] = eventToCanvasCssPx(e, cimg);
     const SI = SZ_img/DPR, oIx = offI_x/DPR, oIy = offI_y/DPR;
@@ -890,7 +944,27 @@ function setupDrag() {
   });
 }
 
+// ---- Bottom sheet (phones): the sidebar slides up over the canvases ----
+function sheetOpen(v) {
+  const side = document.getElementById('side');
+  side.classList.toggle('open', v);
+  document.getElementById('sheet-backdrop').classList.toggle('on', v);
+  if (v) side.scrollTop = 0;
+}
+function isSheetOpen() { return document.getElementById('side').classList.contains('open'); }
+
+function setupSheet() {
+  document.getElementById('mb-controls').addEventListener('click', () => sheetOpen(!isSheetOpen()));
+  document.getElementById('sheet-close').addEventListener('click', () => sheetOpen(false));
+  document.getElementById('sheet-backdrop').addEventListener('click', () => sheetOpen(false));
+  document.getElementById('mb-reset').addEventListener('click', () => document.getElementById('breset').click());
+  // Leaving the phone layout must not strand the sidebar in "open" state
+  const mq = window.matchMedia('(max-width:900px)');
+  if (mq.addEventListener) mq.addEventListener('change', ev => { if (!ev.matches) sheetOpen(false); });
+}
+
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') sheetOpen(false);
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
   if (e.key === 'r' || e.key === 'R') document.getElementById('breset').click();
   if (e.key === 't') document.getElementById('ov-crit-tan').click();
@@ -900,10 +974,14 @@ document.addEventListener('keydown', (e) => {
 });
 
 let resizeTimer = null;
-window.addEventListener('resize', () => {
+function onViewportChange() {
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => { setupSize(); schedRender(); }, 100);
-});
+  resizeTimer = setTimeout(() => { setupSize(); updateLiveStatus(); schedRender(); }, 120);
+}
+window.addEventListener('resize', onViewportChange);
+// Phones: rotation and the collapsing address bar both change the usable box
+window.addEventListener('orientationchange', onViewportChange);
+if (window.visualViewport) window.visualViewport.addEventListener('resize', onViewportChange);
 
 function init() {
   setupSize();
@@ -914,6 +992,7 @@ function init() {
   setupFieldControls();
   setupOverlays();
   setupDrag();
+  setupSheet();
   updateSourcePositionRange();
   updateInfo();
   updateLiveStatus();

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07080f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>EXCALIBUR — Live Lensing Composer</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
@@ -16,7 +19,8 @@
   --danger:#ff6b6b;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+@supports (height:100dvh){body{height:100dvh}}
 
 #loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:100}
 #loading h2{font-family:'Crimson Pro',serif;font-weight:300;font-size:22px;color:var(--accent);letter-spacing:.1em}
@@ -83,7 +87,7 @@ button.reset:hover{border-color:var(--accent);color:var(--accent)}
 .ccoord{color:var(--accent);font-size:9px;font-variant-numeric:tabular-nums}
 
 .cinner{position:relative;flex:1;overflow:hidden;background:#000}
-canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:crosshair;image-rendering:pixelated}
+canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:crosshair;image-rendering:pixelated;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 svg.ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 
 #hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--accent2);pointer-events:none;white-space:nowrap;opacity:.75;z-index:10;background:rgba(13,15,26,.7);padding:2px 8px}
@@ -92,6 +96,113 @@ footer{padding:5px 20px;border-top:1px solid var(--border);font-size:9px;color:v
 footer .legend{display:flex;gap:12px;align-items:center;font-style:normal}
 footer .legend span{display:flex;align-items:center;gap:4px}
 footer .legend .ddot{width:8px;height:8px;border-radius:50%}
+
+/* ============================ MOBILE / TOUCH ============================ */
+.mob-only{display:none}
+.hmeta-short{display:none}
+
+/* Bottom action bar (phones only) */
+#mbar{align-items:center;gap:9px;padding:8px 11px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
+      border-top:1px solid var(--border);background:var(--panel);flex-shrink:0;z-index:50}
+#mbar button{background:transparent;border:1px solid var(--border);color:var(--text);
+             font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.05em;
+             padding:9px 12px;cursor:pointer;white-space:nowrap}
+#mbar #mb-controls{border-color:var(--accent);color:var(--accent)}
+#mbar #mb-coord{flex:1;text-align:center;font-size:10px;color:var(--accent2);
+                font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Sheet chrome (inert on desktop) */
+#sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55;
+                opacity:0;pointer-events:none;transition:opacity .25s}
+#sheet-backdrop.on{opacity:1;pointer-events:auto}
+.sheet-hdr{display:none}
+
+@media (max-width:900px){
+  .mob-only{display:flex}
+  #sheet-backdrop{display:block}
+
+  header{padding:9px 13px 8px;gap:8px}
+  header h1{font-size:16px}
+  header h1 span{font-size:13px}
+  .hmeta{font-size:9px}
+  .hmeta-long{display:none}
+  .hmeta-short{display:inline}
+  footer{display:none}
+
+  /* Two planes stacked so both stay visible while dragging */
+  .canvases{flex-direction:column}
+  .cwrap{min-height:0}
+  .cwrap:first-child{border-right:none;border-bottom:1px solid var(--border)}
+  .ctitle{padding:5px 10px;font-size:9px;gap:8px}
+  .ccoord{font-size:8px}
+  #hint{font-size:9px;bottom:5px;white-space:normal;max-width:94%;text-align:center}
+
+  /* Sidebar becomes a bottom sheet, stopping short of the top so the source
+     plane stays visible while sliders are being adjusted */
+  .side{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;min-width:0;
+        max-height:64vh;z-index:60;border-right:none;border-top:1px solid var(--border);
+        border-radius:16px 16px 0 0;padding:0 15px 20px;
+        padding-bottom:calc(20px + env(safe-area-inset-bottom));gap:16px;
+        transform:translateY(102%);visibility:hidden;
+        transition:transform .26s cubic-bezier(.4,0,.2,1), visibility 0s linear .26s;
+        box-shadow:0 -20px 45px rgba(0,0,0,.6);overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch}
+  .side.open{transform:none;visibility:visible;
+             transition:transform .26s cubic-bezier(.4,0,.2,1), visibility 0s}
+  @supports (max-height:64dvh){.side{max-height:64dvh}}
+
+  .sheet-hdr{display:flex;align-items:center;justify-content:space-between;
+             position:sticky;top:0;background:var(--panel);z-index:2;
+             margin:0 -15px -4px;padding:14px 15px 10px;
+             border-bottom:1px solid var(--border)}
+  .sheet-hdr::before{content:'';position:absolute;top:5px;left:50%;transform:translateX(-50%);
+                     width:38px;height:3px;border-radius:2px;background:var(--border)}
+  .sheet-hdr .ttl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .sheet-hdr button{background:transparent;border:1px solid var(--border);color:var(--muted);
+                    font-family:'Space Mono',monospace;font-size:13px;line-height:1;
+                    padding:8px 12px;cursor:pointer}
+}
+
+/* Phone landscape: keep the planes side by side, height is the scarce axis */
+@media (max-width:900px) and (orientation:landscape){
+  .canvases{flex-direction:row}
+  .cwrap:first-child{border-right:1px solid var(--border);border-bottom:none}
+  header{padding:5px 12px 4px}
+  header h1{font-size:14px}
+  .hmeta{display:none}
+  .ctitle{padding:3px 9px}
+  #mbar{padding:5px 10px;padding-bottom:calc(5px + env(safe-area-inset-bottom))}
+  #mbar button{padding:7px 11px}
+  .side{max-height:92vh}
+  @supports (max-height:92dvh){.side{max-height:92dvh}}
+}
+
+/* Finger-sized targets on any touch device */
+@media (pointer:coarse){
+  input[type=range]{height:30px;background:transparent}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--border);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-10.5px;
+                                          border-radius:50%;background:var(--accent);border:none;
+                                          box-shadow:0 0 0 1px rgba(0,0,0,.6)}
+  input[type=range]::-moz-range-track{height:3px;background:var(--border);border-radius:2px}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border:none}
+  .sl-row{margin-bottom:14px}
+  .sl-lbl,.sl-val{font-size:12px}
+  .sl-val{min-width:62px}
+  .mode-btn{padding:12px 8px;font-size:11px}
+  .lens-card{padding:11px;margin-bottom:11px}
+  .lens-card-type{font-size:12px}
+  .lens-rm{font-size:20px;padding:4px 10px}
+  .add-lens select{font-size:12px;padding:11px}
+  .add-lens button{font-size:12px;padding:11px 14px}
+  .ov-row{padding:8px 0;margin-bottom:0}
+  .ov-dot{width:13px;height:13px}
+  .ov-row span{font-size:12px}
+  .ov-sublabel{font-size:10px;margin:10px 0 2px}
+  .sec-lbl{font-size:10px;margin-bottom:9px}
+  button.reset{padding:14px;font-size:12px}
+  .info{font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -104,11 +215,18 @@ footer .legend .ddot{width:8px;height:8px;border-radius:50%}
 
 <header>
   <h1>EXCALIBUR <span>· Live Lensing Composer</span></h1>
-  <div class="hmeta">every frame ray-traced live in your browser (WebAssembly) · <a href="/assets/excalibur_lensing_webapp/">← curated gallery (precomputed, cosmological)</a></div>
+  <div class="hmeta"><span class="hmeta-long">every frame ray-traced live in your browser (WebAssembly) · </span><a href="/assets/excalibur_lensing_webapp/"><span class="hmeta-long">← curated gallery (precomputed, cosmological)</span><span class="hmeta-short">← gallery</span></a></div>
 </header>
 
+<div id="sheet-backdrop"></div>
+
 <div class="layout">
-<div class="side">
+<div class="side" id="side">
+
+  <div class="sheet-hdr">
+    <span class="ttl">Controls</span>
+    <button id="sheet-close" aria-label="Close">✕</button>
+  </div>
 
   <div>
     <div class="sec-lbl">Metric</div>
@@ -247,6 +365,12 @@ footer .legend .ddot{width:8px;height:8px;border-radius:50%}
   </div>
   <div id="hint">Drag on the source plane · grid size adapts to lens cost (shown below)</div>
 </div>
+</div>
+
+<div id="mbar" class="mob-only">
+  <button id="mb-controls">☰ Controls</button>
+  <div id="mb-coord">β=(0.000, 0.000)</div>
+  <button id="mb-reset" aria-label="Reset">↺</button>
 </div>
 
 <footer>
