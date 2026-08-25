@@ -30,30 +30,30 @@ const ASSET_V = (() => {
 
 // LensKind values MUST match excalibur-cpp/include/excalibur/scene/SceneDescription.hpp's enum exactly.
 const LENS_TYPES = [
-  { kind: 0, name: 'PointMass', label: 'Point mass', costWeight: 1,
+  { kind: 0, name: 'PointMass', label: 'Point mass',
     params: [{ key: 'mass', label: 'Mass', unit: '×10¹² M☉', min: 1, max: 5000, step: 1, def: 500 }] },
-  { kind: 1, name: 'SIS', label: 'SIS (isothermal sphere)', costWeight: 1,
+  { kind: 1, name: 'SIS', label: 'SIS (isothermal sphere)',
     params: [{ key: 'sigma', label: 'σ', unit: 'km/s', min: 100, max: 400, step: 5, def: 220 }] },
-  { kind: 2, name: 'NFW', label: 'NFW halo', costWeight: 1,
+  { kind: 2, name: 'NFW', label: 'NFW halo',
     params: [
       { key: 'M200', label: 'M₂₀₀', unit: '×10¹⁵ M☉', min: 0.1, max: 20, step: 0.1, def: 10 },
       { key: 'c', label: 'concentration', unit: '', min: 2, max: 15, step: 0.5, def: 6 },
     ] },
-  { kind: 3, name: 'TriaxialNFW', label: 'Triaxial NFW', costWeight: 8,
+  { kind: 3, name: 'TriaxialNFW', label: 'Triaxial NFW',
     params: [
       { key: 'M200', label: 'M₂₀₀', unit: '×10¹⁵ M☉', min: 0.1, max: 20, step: 0.1, def: 6 },
       { key: 'c', label: 'concentration', unit: '', min: 2, max: 15, step: 0.5, def: 6 },
       { key: 'q2', label: 'q₂ (b/a)', unit: '', min: 0.3, max: 1, step: 0.05, def: 0.7 },
       { key: 'q3', label: 'q₃ (c/a)', unit: '', min: 0.3, max: 1, step: 0.05, def: 0.5 },
     ] },
-  { kind: 4, name: 'HSWVoid', label: 'Cosmic void', costWeight: 8,
+  { kind: 4, name: 'HSWVoid', label: 'Cosmic void',
     params: [
       { key: 'delta_c', label: 'δ_c', unit: '', min: -1, max: -0.1, step: 0.05, def: -0.8 },
       { key: 'r_v', label: 'r_v', unit: 'Mpc', min: 0.2, max: 2, step: 0.05, def: 0.8 },
       { key: 'r0', label: 'r₀', unit: 'Mpc', min: 0.1, max: 1, step: 0.05, def: 0.4 },
       { key: 'boost', label: 'density boost', unit: '×', min: 1, max: 20000, step: 100, def: 12000 },
     ] },
-  { kind: 5, name: 'GaussianSphere', label: 'Gaussian sphere', costWeight: 1,
+  { kind: 5, name: 'GaussianSphere', label: 'Gaussian sphere',
     params: [
       { key: 'rho0', label: 'ρ₀', unit: 'M☉/Mpc³', min: 1e13, max: 1e16, step: 1e13, def: 5e14 },
       { key: 'sigma', label: 'σ', unit: 'Mpc', min: 0.1, max: 1, step: 0.05, def: 0.3 },
@@ -75,25 +75,15 @@ const lensTypeByKind = (k) => LENS_TYPES.find(t => t.kind === k);
 const WEAK_D_L_MPC = 1500, WEAK_D_LS_MPC = 1500, WEAK_HALF_FOV_MPC = 3.0;
 const BH_D_L_RS = 60, BH_D_LS_RS = 60, BH_HALF_FOV_RS = 20.0;
 
-// Grid-size cost budget: the TARGET (final, sharpest) rung of the
-// progressive resolution ladder (see resolutionLadder()/beginTrace() below).
-// TriaxialNFW/HSWVoid's 16-pt Gauss-Legendre quadrature costs several times
-// more per lens than the closed-form profiles, so this keeps a typical
-// scene's full-resolution pass bounded as more/expensive lenses stack up --
-// not precision-tuned, just a starting heuristic.
-function pickGridSize(lenses) {
-  const weight = lenses.reduce((s, l) => s + lensTypeByKind(l.kind).costWeight, 0);
-  let n;
-  if (weight <= 2) n = 320;
-  else if (weight <= 6) n = 200;
-  else if (weight <= 15) n = 140;
-  else n = 100;
-  // A phone has a fraction of the cores and a much tighter thermal budget, so
-  // the top rung is lowered rather than left permanently out of reach -- the
-  // ladder would otherwise stall short of its target on every edit.
-  return COARSE ? Math.round(n * 0.625) : n;
-}
-const BH_N = COARSE ? 200 : 320;  // single-BH scenes don't stack cost, so this can match the cheap-lens weak-field target
+// Top of the progressive resolution ladder -- the final, sharpest rung, and
+// the same for every scene. This used to be a per-scene cost budget that
+// CAPPED the target (down to 100, and 0.625x of that on a phone), so an
+// expensive or mobile scene simply stopped climbing and sat at something like
+// 88x88 forever. Giving cheap feedback fast is the ladder's job, not a
+// ceiling's: the low rungs already put an image on screen almost immediately,
+// so an expensive scene should take longer to reach the top, not be denied it.
+// Cost is therefore paid in TIME now, not in final resolution.
+const RESOLUTION_MAX = 700;
 
 let nextLensId = 1;
 let lensList = [{ id: nextLensId++, kind: 2, x_mpc: 0, y_mpc: 0, z_mpc: 0,
@@ -571,7 +561,7 @@ function handleFinalizeDone(e) {
 
 function composeSpec(overrideN) {
   if (metricMode === 'weak_field') {
-    const N = overrideN || pickGridSize(lensList);
+    const N = overrideN || RESOLUTION_MAX;
     const lenses = lensList.map(l => {
       const t = lensTypeByKind(l.kind);
       return { kind: l.kind, x_mpc: l.x_mpc, y_mpc: l.y_mpc, z_mpc: l.z_mpc || 0, params: t.params.map(p => l.params[p.key]) };
@@ -583,14 +573,14 @@ function composeSpec(overrideN) {
   }
   return { mode: 'schwarzschild', spec: {
     bh_mass_1e6_msun: bh.mass, x_mpc: bh.x, y_mpc: bh.y,
-    N: overrideN || BH_N, half_fov_rs: BH_HALF_FOV_RS, D_l_rs: BH_D_L_RS, D_ls_rs: BH_D_LS_RS,
+    N: overrideN || RESOLUTION_MAX, half_fov_rs: BH_HALF_FOV_RS, D_l_rs: BH_D_L_RS, D_ls_rs: BH_D_LS_RS,
     rtol: 1e-10, atol: 1e-13,
   } };
 }
 
 // Progressive multi-resolution live rendering: every scene edit restarts a
 // resolution LADDER from a near-instant low-res pass, then keeps
-// automatically climbing toward the pickGridSize()-calibrated target
+// automatically climbing toward RESOLUTION_MAX
 // (beginTrace() re-invokes itself from handleFinalizeDone() on each rung's
 // completion) -- so there's always something on screen almost immediately,
 // getting sharper as the pool works through progressively bigger grids. A
@@ -598,7 +588,14 @@ function composeSpec(overrideN) {
 // rung 0; the old ladder's still-in-flight results get silently dropped by
 // handlePoolMessage's stale-id check when they arrive (see there for what
 // happens to the worker that was computing them).
-const RESOLUTION_CHECKPOINTS = [16, 32, 64, 112, 160, 208, 256];
+// Every rung of the original ladder is still here (16, 32, 64, 112, 160, 208,
+// 256), with intermediates filling the gaps below 256 where each step is cheap
+// and the visual jump was most obvious. Above 256 the spacing goes roughly
+// geometric: cost grows as N^2, so evenly spaced rungs up there would burn far
+// more time re-tracing than the extra smoothness is worth. Total ladder work
+// is ~2.7x the final pass alone, about what the original ladder already spent.
+const RESOLUTION_CHECKPOINTS = [16, 32, 48, 64, 88, 112, 136, 160, 184, 208, 232, 256,
+                                320, 420, 550];
 function resolutionLadder(target) {
   const rungs = RESOLUTION_CHECKPOINTS.filter((n) => n < target);
   rungs.push(target);
@@ -652,8 +649,7 @@ let liveDebounceTimer = null;
 function scheduleLiveRecompute() {
   clearTimeout(liveDebounceTimer);
   liveDebounceTimer = setTimeout(() => {
-    const target = metricMode === 'weak_field' ? pickGridSize(lensList) : BH_N;
-    beginTrace(resolutionLadder(target), 0);
+    beginTrace(resolutionLadder(RESOLUTION_MAX), 0);
   }, 80);
 }
 
@@ -670,7 +666,7 @@ function updateLiveStatus() {
       : '';
     el.textContent = `${lead}${currentRequest.N}×${currentRequest.N}${refining} (${pct}%)`;
   } else {
-    const N = SCENE.N || (metricMode === 'weak_field' ? pickGridSize(lensList) : BH_N);
+    const N = SCENE.N || RESOLUTION_MAX;
     el.textContent = `${lead}${N}×${N}`;
   }
 }
@@ -1016,6 +1012,6 @@ function init() {
   updateLiveStatus();
   // Same progressive ladder as any later edit -- the very first paint is
   // low-res almost immediately, then sharpens automatically.
-  beginTrace(resolutionLadder(metricMode === 'weak_field' ? pickGridSize(lensList) : BH_N), 0);
+  beginTrace(resolutionLadder(RESOLUTION_MAX), 0);
 }
 init();
