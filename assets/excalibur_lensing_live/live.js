@@ -65,7 +65,14 @@ const lensTypeByKind = (k) => LENS_TYPES.find(t => t.kind === k);
 // info panel for why: this is deliberately simplified flat, non-cosmological
 // weak-field lensing, distinct from the precomputed gallery's cosmological
 // PerturbedFLRW pipeline at z_lens=1/z_source=2.
-const WEAK_D_L_MPC = 300, WEAK_D_LS_MPC = 300, WEAK_HALF_FOV_MPC = 3.0;
+// Lensing efficiency goes as D_l*D_ls/D_s, and Sigma_crit as D_s/(D_l*D_ls).
+// At the original 300/300 Mpc the default NFW halo sat BELOW critical density:
+// no critical curve, no Einstein ring, just a faint magnification -- which
+// contradicted the default scene's stated intent. Even both lens sliders at
+// maximum only reached a ring 8% of the half-field wide. At 1500/1500 the
+// default halo gives R_E = 0.52 Mpc (17% of the half-field) and the sliders
+// still have room above that.
+const WEAK_D_L_MPC = 1500, WEAK_D_LS_MPC = 1500, WEAK_HALF_FOV_MPC = 3.0;
 const BH_D_L_RS = 60, BH_D_LS_RS = 60, BH_HALF_FOV_RS = 20.0;
 
 // Grid-size cost budget: the TARGET (final, sharpest) rung of the
@@ -113,7 +120,7 @@ const P = { cx: 0, cy: 0, Re: 0.1, ns: 1.0, ellip: 0.3, pa: 30, I0: 1.0, D_ls_mp
 // before this existed.
 let fieldEnabled = false;
 let fieldSources = [];  // [{cx, cy, Re, ns, ellip, pa, brightness, D_ls_mpc}, ...]
-const FIELD = { count: 24, dMin: 120, dMax: 900 };
+const FIELD = { count: 24, dMin: 600, dMax: 4500 };
 
 function generateField(count, dMin, dMax) {
   const lim = sourcePosLimit() * 0.9;  // margin so field members stay visibly inside the FOV
