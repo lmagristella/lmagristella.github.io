@@ -473,17 +473,33 @@ function sersicDirect(cx,cy,Re,ns,ellip,pa_deg,stride){
   return{vals,vmax,n:M};
 }
 
-// Reusable offscreen tile + ImageData, keyed by size. Reallocating a 1000x1000
-// canvas on every frame is a real cost on phones.
+// Reusable offscreen tile + ImageData. Reallocating a 1000x1000 canvas on
+// every frame is a real cost on phones -- but the tile is kept PER DESTINATION
+// canvas, not merely per size. render() paints the image plane and the source
+// plane back to back from the same-sized grid, so a single shared tile means
+// the second putImageData overwrites the lensed pixels while the image plane's
+// drawImage may not have been composited yet. Browsers that snapshot the
+// drawImage source lazily then show the source plane in BOTH panels, i.e. the
+// image plane appears to have no lensing at all.
 const _tiles={};
-function getTile(N){
-  let t=_tiles[N];
+const _tileOrder=[];
+function getTile(slot,N){
+  const key=slot+':'+N;
+  let t=_tiles[key];
   if(!t){
     const c = (typeof OffscreenCanvas!=='undefined')
       ? new OffscreenCanvas(N,N)
       : Object.assign(document.createElement('canvas'),{width:N,height:N});
     t={canvas:c, ctx:c.getContext('2d'), idata:new ImageData(N,N)};
-    _tiles[N]=t;
+    _tiles[key]=t;
+    // The working set is exactly four: two planes x {full resolution, the
+    // decimated size used mid-gesture}. Switching profiles changes N, so cap
+    // it rather than retaining a 1000x1000 ImageData per size ever visited.
+    _tileOrder.push(key);
+    while(_tileOrder.length>4){
+      const drop=_tileOrder.shift();
+      if(drop!==key) delete _tiles[drop];
+    }
   }
   return t;
 }
@@ -493,7 +509,7 @@ function paintToCanvas(ctx, vals, N, SZ, offX, offY, vmax_ref, I0){
   // Clear (black bands outside square)
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, W, H);
-  const tile=getTile(N);
+  const tile=getTile(ctx===ctxI?'img':'src', N);
   const idata=tile.idata;
   const pix=idata.data;
   const inv=vmax_ref>1e-12?1/vmax_ref:0;
