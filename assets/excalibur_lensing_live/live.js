@@ -73,7 +73,24 @@ const lensTypeByKind = (k) => LENS_TYPES.find(t => t.kind === k);
 // default halo gives R_E = 0.52 Mpc (17% of the half-field) and the sliders
 // still have room above that.
 const WEAK_D_L_MPC = 1500, WEAK_D_LS_MPC = 1500, WEAK_HALF_FOV_MPC = 3.0;
-const BH_D_L_RS = 60, BH_D_LS_RS = 60, BH_HALF_FOV_RS = 20.0;
+// r_s scales with M, so a frame specified in r_s is scale-free: with the field
+// of view and both distances given in r_s, the dimensionless problem has no
+// free mass parameter left and the mass slider could not change the picture at
+// all (measured: the beta/r_s map moved by 4.9e-7 r_s across a 12.5x mass
+// change, pure integrator noise).
+//
+// Pin the frame to a FIXED PHYSICAL size instead, written as the r_s-frame of
+// one reference mass. The field of view and the distances then shrink in r_s
+// units as the mass grows, so a heavier hole genuinely fills more of the same
+// physical window -- measured, the shadow goes from 2.5% of the half-field at
+// 1e6 Msun to 24.9% at 8e6, while its absolute radius stays at the ~2.6 r_s
+// physics demands. Calibrated at BH_REF_MASS so the default view is unchanged.
+const BH_REF_MASS = 4.0;   // 1e6 Msun -- the mass the frame below is written for
+const BH_REF_HALF_FOV_RS = 20.0, BH_REF_D_L_RS = 60, BH_REF_D_LS_RS = 60;
+const bhFrameScale = () => BH_REF_MASS / bh.mass;
+const bhHalfFovRs = () => BH_REF_HALF_FOV_RS * bhFrameScale();
+const bhDlRs = () => BH_REF_D_L_RS * bhFrameScale();
+const bhDlsRs = () => BH_REF_D_LS_RS * bhFrameScale();
 
 // Top of the progressive resolution ladder -- the final, sharpest rung, and
 // the same for every scene. This used to be a per-scene cost budget that
@@ -608,7 +625,7 @@ function composeSpec(overrideN) {
   }
   return { mode: 'schwarzschild', spec: {
     bh_mass_1e6_msun: bh.mass, x_mpc: bh.x, y_mpc: bh.y,
-    N: overrideN || RESOLUTION_MAX, half_fov_rs: BH_HALF_FOV_RS, D_l_rs: BH_D_L_RS, D_ls_rs: BH_D_LS_RS,
+    N: overrideN || RESOLUTION_MAX, half_fov_rs: bhHalfFovRs(), D_l_rs: bhDlRs(), D_ls_rs: bhDlsRs(),
     rtol: 1e-10, atol: 1e-13,
   } };
 }
@@ -777,21 +794,42 @@ document.getElementById('add-lens-btn').addEventListener('click', () => {
 // ---------------------------------------------------------------------------
 // The source-position sliders (sx/sy) share DOM elements across both modes,
 // but the two modes use unrelated units/scales (Mpc vs r_s) and FOVs
-// (WEAK_HALF_FOV_MPC=3.0 vs BH_HALF_FOV_RS=10) -- a single fixed slider range
+// (WEAK_HALF_FOV_MPC=3.0 vs the mass-dependent bhHalfFovRs()) -- a fixed range
 // left Schwarzschild mode only able to place the source within a fraction
 // of its actual (much wider, in its own units) frame. Re-range on every
 // mode switch instead, and re-center (a leftover Mpc-space position has no
 // meaningful equivalent in r_s-space, or vice versa).
-const WEAK_SOURCE_POS_LIMIT = 2.8, BH_SOURCE_POS_LIMIT = 18.0;
-function sourcePosLimit() { return metricMode === 'weak_field' ? WEAK_SOURCE_POS_LIMIT : BH_SOURCE_POS_LIMIT; }
-function updateSourcePositionRange() {
+// In Schwarzschild mode the frame width now depends on the mass, so these
+// ranges are fractions of it rather than constants. The fractions reproduce
+// the previous fixed values exactly at BH_REF_MASS (0.9*20 = 18, 0.7*20 = 14).
+const WEAK_SOURCE_POS_LIMIT = 2.8;
+function sourcePosLimit() { return metricMode === 'weak_field' ? WEAK_SOURCE_POS_LIMIT : 0.9 * bhHalfFovRs(); }
+
+// reset=true re-centres (switching modes: an Mpc-space position has no
+// meaningful r_s-space equivalent); reset=false keeps the source where it is
+// and merely clamps it, which is what a mass change wants.
+function updateSourcePositionRange(reset = true) {
   const lim = sourcePosLimit();
   const sxEl = document.getElementById('sx'), syEl = document.getElementById('sy');
   sxEl.min = -lim; sxEl.max = lim; syEl.min = -lim; syEl.max = lim;
-  P.cx = 0; P.cy = 0;
-  sxEl.value = 0; syEl.value = 0;
-  document.getElementById('vx').textContent = fmt(0);
-  document.getElementById('vy').textContent = fmt(0);
+  if (reset) { P.cx = 0; P.cy = 0; }
+  else { P.cx = Math.max(-lim, Math.min(lim, P.cx)); P.cy = Math.max(-lim, Math.min(lim, P.cy)); }
+  sxEl.value = P.cx; syEl.value = P.cy;
+  document.getElementById('vx').textContent = fmt(P.cx);
+  document.getElementById('vy').textContent = fmt(P.cy);
+}
+
+// The hole's own offset sliders are in r_s too, so they must not be able to
+// push it outside a frame that shrank when the mass grew.
+function updateBhOffsetRange() {
+  const lim = 0.7 * bhHalfFovRs();
+  for (const [id, vid, key] of [['s-bhx', 'v-bhx', 'x'], ['s-bhy', 'v-bhy', 'y']]) {
+    const el = document.getElementById(id);
+    el.min = -lim; el.max = lim;
+    bh[key] = Math.max(-lim, Math.min(lim, bh[key]));
+    el.value = bh[key];
+    document.getElementById(vid).textContent = fmt(bh[key], 1);
+  }
 }
 
 document.getElementById('mode-weak').addEventListener('click', () => {
@@ -818,12 +856,20 @@ document.getElementById('mode-bh').addEventListener('click', () => {
   document.getElementById('sdls-row').style.display = 'none';
   document.getElementById('field-panel').style.display = 'none';
   updateSourcePositionRange();
+  updateBhOffsetRange();   // frame width depends on the current mass
   scheduleLiveRecompute();
 });
 
 function setupBhSliders() {
   const sm = document.getElementById('s-bhmass'), vm = document.getElementById('v-bhmass');
-  sm.addEventListener('input', () => { bh.mass = +sm.value; vm.textContent = `${(+sm.value).toFixed(1)}×10⁶ M☉`; scheduleLiveRecompute(); });
+  sm.addEventListener('input', () => {
+    bh.mass = +sm.value;
+    vm.textContent = `${(+sm.value).toFixed(1)}×10⁶ M☉`;
+    // the frame is a fixed physical size, so its width in r_s just changed
+    updateSourcePositionRange(false);
+    updateBhOffsetRange();
+    scheduleLiveRecompute();
+  });
   const sxEl = document.getElementById('s-bhx'), vxEl = document.getElementById('v-bhx');
   sxEl.addEventListener('input', () => { bh.x = +sxEl.value; vxEl.textContent = fmt(+sxEl.value, 1); scheduleLiveRecompute(); });
   const syEl = document.getElementById('s-bhy'), vyEl = document.getElementById('v-bhy');
@@ -847,7 +893,7 @@ function updateInfo() {
       `<b>Schwarzschild black hole</b><br>` +
       `<div class="row"><span>Mass</span><span>${bh.mass.toFixed(1)}×10⁶ M☉</span></div>` +
       `<div class="row"><span>Grid</span><span>${SCENE.N}×${SCENE.N}</span></div>` +
-      `<div class="row"><span>Field of view</span><span>±${BH_HALF_FOV_RS} r_s</span></div>` +
+      `<div class="row"><span>Field of view</span><span>±${bhHalfFovRs().toFixed(1)} r_s</span></div>` +
       `<div class="note">Exact strong-field geodesics (isotropic Schwarzschild metric) — real photon-sphere bending and a captured-photon shadow, not a weak-field approximation. Distinct from the precomputed gallery's "Schwarzschild" entry, which is actually a weak-field point mass.</div>`;
   }
 }
