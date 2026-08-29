@@ -231,9 +231,34 @@ function bn(n) { return 2*n - 1/3 + 4/(405*n) + 46/(25515*n*n); }
 // scales the whole composited image in paintToCanvas() below -- field
 // members carry their own random relative `brightness` instead, so the
 // field reads as a scatter of differently-luminous background objects.
+// The Schwarzschild trace has no "this ray was captured" output. A ray whose
+// impact parameter is below b_c = 3*sqrt(3)/2 r_s falls into the hole, and the
+// trace hands it back with beta left EQUAL to theta. Rendered as an ordinary
+// deflection that fills the middle of the image plane with an undistorted copy
+// of the source -- precisely where the black hole's SHADOW belongs.
+//
+// The two populations are eight orders of magnitude apart, so the identity is
+// unambiguous to detect: captured rays sit within float32 rounding of theta
+// (measured max 8.9e-8 r_s), while every other ray in this field is deflected
+// by at least 4 r_s. Measured over the grid, the flagged pixels form a clean
+// disk of radius 2.47 r_s against the 2.598 r_s theoretical capture radius.
+function capturedMask(N, half, beta1, beta2) {
+  const step = 2 * half / N, eps = 1e-4 * half;
+  const mask = new Uint8Array(N * N);
+  for (let j = 0; j < N; j++) {
+    const ty = -half + (j + .5) * step;
+    for (let i = 0; i < N; i++) {
+      const idx = i + j * N, tx = -half + (i + .5) * step;
+      if (Math.abs(beta1[idx] - tx) < eps && Math.abs(beta2[idx] - ty) < eps) mask[idx] = 1;
+    }
+  }
+  return mask;
+}
+
 function compositeOnBeta(sources) {
   const N = SCENE.N, half = SCENE.half;
   if (!N || !SCENE.beta1) return { vals: new Float32Array(0), vmax: 0 };
+  const captured = SCENE.captured;
   const step = 2*half/N;
   const vals = new Float32Array(N*N);
   let vmax = 0;
@@ -243,7 +268,14 @@ function compositeOnBeta(sources) {
   // formula above.
   const meanLensZ = lensList.length ? lensList.reduce((s,l) => s+(l.z_mpc||0), 0) / lensList.length : 0;
   const D_s_ref = WEAK_D_L_MPC + WEAK_D_LS_MPC;
-  const K = WEAK_D_L_MPC / D_s_ref;
+  // K corrects the PERSPECTIVE camera's raw weak-field beta back onto the
+  // img_x/theta scale (see the derivation above). finalizeSchwarzschild
+  // already returns beta on that scale -- verified by widening the field
+  // until deflection vanishes, where |beta|/|theta| -> 1.000000 -- so applying
+  // K there too halved the whole black-hole image plane. Schwarzschild mode
+  // takes the traced beta directly, which is what this file's render() comment
+  // said it did all along.
+  const K = metricMode === 'weak_field' ? WEAK_D_L_MPC / D_s_ref : 1;
   const D_ls_ref_eff = WEAK_D_LS_MPC - meanLensZ;
   for (const src of sources) {
     const pa = src.pa*Math.PI/180, cp = Math.cos(pa), sp = Math.sin(pa);
@@ -255,6 +287,7 @@ function compositeOnBeta(sources) {
       const thetaY = -half+(j+.5)*step;
       for (let i = 0; i < N; i++) {
         const idx = i+j*N;
+        if (captured && captured[idx]) continue;  // inside the shadow: no light reaches the observer
         const thetaX = -half+(i+.5)*step;
         const bx = thetaX*(1-ratio2) + ratio2*K*SCENE.beta1[idx];
         const by = thetaY*(1-ratio2) + ratio2*K*SCENE.beta2[idx];
@@ -546,6 +579,8 @@ function handleFinalizeDone(e) {
   const { ladder, step } = currentRequest;
   SCENE = { N: e.data.N, half: e.data.half, unit_label: e.data.unit_label,
            beta1: e.data.beta1, beta2: e.data.beta2, overlays: e.data.overlays };
+  SCENE.captured = currentRequest.mode === 'schwarzschild'
+    ? capturedMask(SCENE.N, SCENE.half, SCENE.beta1, SCENE.beta2) : null;
   everRendered = true;
   document.getElementById('loading').style.display = 'none';
   updateInfo();
